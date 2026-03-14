@@ -1,8 +1,10 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { FaArrowRight } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const Categories = () => {
+    const navigate = useNavigate();
   const categories = [
     {
       title: "Wedding",
@@ -62,6 +64,7 @@ const Categories = () => {
           {categories.map((category, index) => (
             <motion.div
               key={index}
+              onClick={() => navigate(`/category/${category.title}`)}
               className={`group relative rounded-3xl overflow-hidden cursor-pointer ${category.cols}`}
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}

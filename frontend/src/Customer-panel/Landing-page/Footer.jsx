@@ -34,7 +34,7 @@ const Footer = () => {
             <ul className="space-y-4">
               <li>
                 <a
-                  href="#"
+                  href="/"
                   className="text-gray-400 hover:text-indigo-400 transition"
                 >
                   Our Story
@@ -42,7 +42,7 @@ const Footer = () => {
               </li>
               <li>
                 <a
-                  href="#"
+                  href="/"
                   className="text-gray-400 hover:text-indigo-400 transition"
                 >
                   Careers
@@ -50,7 +50,7 @@ const Footer = () => {
               </li>
               <li>
                 <a
-                  href="#"
+                  href="/"
                   className="text-gray-400 hover:text-indigo-400 transition"
                 >
                   Blog
@@ -58,7 +58,7 @@ const Footer = () => {
               </li>
               <li>
                 <a
-                  href="#"
+                  href="/"
                   className="text-gray-400 hover:text-indigo-400 transition"
                 >
                   Press

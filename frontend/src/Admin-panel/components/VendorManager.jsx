@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   FaPlus, 
   FaStore, 
-  FaUser, 
   FaEnvelope, 
   FaPhone, 
   FaMapMarkerAlt, 
@@ -13,7 +12,6 @@ import {
   FaSearch, 
   FaSpinner, 
   FaTimes,
-  FaCheckCircle
 } from "react-icons/fa";
 import { toast } from "react-hot-toast";
 
