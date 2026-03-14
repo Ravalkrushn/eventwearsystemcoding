@@ -21,6 +21,7 @@ const Registration = () => {
   const [role, setRole] = useState(null);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [shopImage, setShopImage] = useState(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -160,6 +161,12 @@ const Registration = () => {
         placeholder: "SBIN0001234",
       },
       {
+        name: "shopImage",
+        label: "Shop Photo",
+        type: "file",
+        placeholder: "Upload Shop Photo",
+      },
+      {
         name: "password",
         label: "Password",
         type: "password",
@@ -211,7 +218,11 @@ const Registration = () => {
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, files } = e.target;
+    if (name === "shopImage") {
+      setShopImage(files[0]);
+      return;
+    }
     setFormData({ ...formData, [name]: value });
 
     if (name === "password") checkPasswordStrength(value);
@@ -227,12 +238,16 @@ const Registration = () => {
     const fields = formFields[role];
 
     fields.forEach((field) => {
-      if (!formData[field.name]) {
+      if (field.type !== "file" && !formData[field.name]) {
         newErrors[field.name] = `${field.label} is required`;
       }
     });
 
-    if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
+    if (role === 'vendor' && !shopImage) {
+        newErrors.shopImage = "Shop image is required";
+    }
+
+    if (formData.email && !/\S+@\S+\.\S/.test(formData.email)) {
       newErrors.email = "Invalid email format";
     }
 
@@ -251,30 +266,34 @@ const Registration = () => {
     setLoading(true);
 
     try {
-      const payload = {
-        role,
-        email: formData.email,
-        password: formData.password,
-        phone: formData.phone,
-        city: formData.city,
-      };
+      const data = new FormData();
+      data.append("role", role);
+      data.append("email", formData.email);
+      data.append("password", formData.password);
+      data.append("phone", formData.phone);
+      data.append("city", formData.city);
 
       if (role === 'customer') {
-        payload.fullName = formData.name;
-        payload.address = formData.address;
+        data.append("fullName", formData.name);
+        data.append("address", formData.address);
       } else if (role === 'vendor') {
-        payload.ownerName = formData.ownerName;
-        payload.shopName = formData.shopName;
-        payload.shopAddress = formData.address;
-        payload.aadharNumber = formData.aadhar;
-        payload.panNumber = formData.pan;
-        payload.bankAccount = formData.bankAccount;
-        payload.ifscCode = formData.ifsc;
+        data.append("ownerName", formData.ownerName);
+        data.append("shopName", formData.shopName);
+        data.append("shopAddress", formData.address);
+        data.append("aadharNumber", formData.aadhar);
+        data.append("panNumber", formData.pan);
+        data.append("bankAccount", formData.bankAccount);
+        data.append("ifscCode", formData.ifsc);
+        if (shopImage) data.append("shopImage", shopImage);
       } else if (role === 'admin') {
-        payload.fullName = formData.name;
+        data.append("fullName", formData.name);
       }
 
-      const response = await axios.post("http://localhost:5000/api/auth/register", payload);
+      const response = await axios.post("http://localhost:5000/api/auth/register", data, {
+          headers: {
+              "Content-Type": "multipart/form-data"
+          }
+      });
 
       if (response.data.success) {
         toast.success("Registration successful! Please login.");
@@ -446,14 +465,14 @@ const Registration = () => {
                                   : field.type
                             }
                             name={field.name}
-                            value={formData[field.name]}
+                            {...(field.type !== "file" ? { value: formData[field.name] } : {})}
                             onChange={handleChange}
                             placeholder={field.placeholder}
                             className={`appearance-none block w-full px-3 py-2 border ${
                               errors[field.name]
                                 ? "border-red-300"
-                                : "border-gray-300"
-                            } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors`}
+                                : "border-gray-200"
+                            } ${field.type === "file" ? "bg-gray-50 py-1.5" : ""} rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors`}
                           />
 
                           {/* Show/Hide Password Toggle */}

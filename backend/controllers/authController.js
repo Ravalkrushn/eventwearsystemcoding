@@ -67,7 +67,8 @@ exports.register = async (req, res, next) => {
         panNumber,
         bankAccount,
         ifscCode,
-        password
+        password,
+        shopImage: req.file ? `/uploads/vendors/${req.file.filename}` : null
       });
     } else {
       user = await Admin.create({ fullName: fullName || ownerName, email, password });

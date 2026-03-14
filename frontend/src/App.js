@@ -5,6 +5,7 @@ import LandingPage from './Landing-page/LandingPage';
 import Login from './loign-regis/Login';
 import Registration from './loign-regis/Registration';
 import VendorDashboard from './Vendor-panel/VendorDashboard';
+import AdminDashboard from './Admin-panel/AdminDashboard';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Registration />} />
         <Route path="/vendor-dashboard" element={<VendorDashboard />} />
+        <Route path="/admin-dashboard" element={<AdminDashboard />} />
       </Routes>
     </Router>
   );

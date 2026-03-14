@@ -24,10 +24,12 @@ import {
   ResponsiveContainer 
 } from "recharts";
 import { useNavigate } from "react-router-dom";
+import AddProduct from "./pages/AddProduct";
 
 const VendorDashboard = () => {
   const navigate = useNavigate();
   const [isSidebarOpen, setSidebarOpen] = useState(true);
+  const [currentView, setCurrentView] = useState("dashboard"); // View state
 
   // Mock Data
   const stats = [
@@ -85,20 +87,20 @@ const VendorDashboard = () => {
 
         <nav className="flex-1 py-6 px-3 space-y-2 overflow-y-auto">
           {[
-            { name: "Dashboard", icon: <FaBox /> },
-            { name: "Products", icon: <FaList /> },
-            { name: "Orders", icon: <FaCheckCircle /> },
-            { name: "Earnings", icon: <FaMoneyBillWave /> },
-            { name: "Settings", icon: <FaCog /> },
-          ].map((item, index) => (
-            <a 
-              key={index}
-              href="#" 
-              className={`flex items-center p-3 rounded-lg transition-colors ${index === 0 ? "bg-indigo-600 text-white" : "text-gray-400 hover:bg-gray-800 hover:text-white"}`}
+            { id: "dashboard", name: "Dashboard", icon: <FaBox /> },
+            { id: "products", name: "Products", icon: <FaList /> },
+            { id: "orders", name: "Orders", icon: <FaCheckCircle /> },
+            { id: "earnings", name: "Earnings", icon: <FaMoneyBillWave /> },
+            { id: "settings", name: "Settings", icon: <FaCog /> },
+          ].map((item) => (
+            <button 
+              key={item.id}
+              onClick={() => setCurrentView(item.id)}
+              className={`flex items-center w-full p-3 rounded-lg transition-colors ${currentView === item.id ? "bg-indigo-600 text-white" : "text-gray-400 hover:bg-gray-800 hover:text-white"}`}
             >
               <span className="text-xl">{item.icon}</span>
               {isSidebarOpen && <span className="ml-3 font-medium">{item.name}</span>}
-            </a>
+            </button>
           ))}
         </nav>
 
@@ -142,172 +144,174 @@ const VendorDashboard = () => {
           </div>
         </header>
 
-        {/* Dashboard Content */}
+        {/* Main Content Area */}
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            {/* Welcome & Quick Actions */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-800">Welcome back, John! 👋</h1>
-                <p className="text-gray-500 mt-1">Here's what's happening with your store today.</p>
-              </div>
-              <div className="flex flex-wrap gap-3">
-                <button className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-md hover:bg-indigo-700 transition transform hover:-translate-y-0.5">
-                  <FaPlus className="mr-2" /> Add Product
-                </button>
-                <button className="flex items-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
-                  View Orders
-                </button>
-              </div>
-            </div>
-
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              {stats.map((stat, index) => (
-                <motion.div 
-                  key={index}
-                  whileHover={{ y: -5 }}
-                  className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 relative overflow-hidden group"
-                >
-                  <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${stat.color} opacity-10 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110`}></div>
-                  <div className="flex items-center justify-between mb-4">
-                    <div className={`p-3 rounded-lg bg-gradient-to-br ${stat.color} text-white shadow-lg`}>
-                      {stat.icon}
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">{stat.title}</p>
-                    <h3 className="text-2xl font-bold text-gray-800 mt-1">{stat.value}</h3>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-               {/* Recent Products */}
-              <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-lg font-bold text-gray-800">Recent Products</h2>
-                  <button className="text-sm text-indigo-600 hover:text-indigo-800 font-medium">View All</button>
+          {currentView === "dashboard" ? (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              {/* Welcome & Quick Actions */}
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-800">Welcome back, John! 👋</h1>
+                  <p className="text-gray-500 mt-1">Here's what's happening with your store today.</p>
                 </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="text-xs font-semibold tracking-wide text-gray-500 uppercase border-b border-gray-200">
-                        <th className="px-4 py-3">Product</th>
-                        <th className="px-4 py-3">Category</th>
-                        <th className="px-4 py-3">Price</th>
-                        <th className="px-4 py-3">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-100">
-                      {recentProducts.map((product) => (
-                        <tr key={product.id} className="hover:bg-gray-50 transition-colors">
-                          <td className="px-4 py-3">
-                            <div className="flex items-center text-sm">
-                              {/* Using generic fashion placeholder since randomuser is avatars */}
-                              <div className="relative hidden w-10 h-10 mr-3 rounded-lg md:block bg-gray-200">
-                                 <div className="absolute inset-0 flex items-center justify-center text-gray-500 text-xs">IMG</div>
-                              </div>
-                              <div>
-                                <p className="font-semibold text-gray-700">{product.name}</p>
-                                <p className="text-xs text-gray-500">ID: #{product.id}</p>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 text-sm text-gray-600">{product.category}</td>
-                          <td className="px-4 py-3 text-sm font-medium text-gray-800">{product.price}</td>
-                          <td className="px-4 py-3 text-sm">
-                            <span className={`px-2 py-1 font-semibold leading-tight rounded-full text-xs ${getStatusColor(product.status)}`}>
-                              {product.status}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                <div className="flex flex-wrap gap-3">
+                  <button 
+                    onClick={() => setCurrentView("products")}
+                    className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-md hover:bg-indigo-700 transition transform hover:-translate-y-0.5"
+                  >
+                    <FaPlus className="mr-2" /> Add Product
+                  </button>
+                  <button className="flex items-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
+                    View Orders
+                  </button>
                 </div>
               </div>
 
-              {/* Earnings Chart */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                <h2 className="text-lg font-bold text-gray-800 mb-2">Earnings Overview</h2>
-                <p className="text-sm text-gray-500 mb-6">Monthly revenue trends</p>
-                <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
-                      <XAxis 
-                        dataKey="name" 
-                        axisLine={false} 
-                        tickLine={false} 
-                        tick={{fill: '#9ca3af', fontSize: 12}} 
-                        dy={10}
-                      />
-                      <YAxis 
-                        axisLine={false} 
-                        tickLine={false} 
-                        tick={{fill: '#9ca3af', fontSize: 12}} 
-                      />
-                      <Tooltip 
-                        contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
-                      />
-                      <Line 
-                        type="monotone" 
-                        dataKey="earnings" 
-                        stroke="#4f46e5" 
-                        strokeWidth={3} 
-                        dot={{ r: 4, fill: '#4f46e5', strokeWidth: 2, stroke: '#fff' }} 
-                        activeDot={{ r: 6 }} 
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-                <div className="mt-4 flex items-center justify-center gap-4 text-sm text-gray-500">
-                   <div className="flex items-center gap-2">
-                      <span className="w-3 h-3 rounded-full bg-indigo-600"></span> Current Year
-                   </div>
-                   <div className="flex items-center gap-2">
-                      <span className="w-3 h-3 rounded-full bg-gray-300"></span> Previous Year
-                   </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Pending Orders */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-lg font-bold text-gray-800">Pending Orders</h2>
-                <button className="text-sm text-indigo-600 hover:text-indigo-800 font-medium">View All Orders</button>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {pendingOrders.map((order) => (
-                  <div key={order.id} className="p-4 rounded-lg border border-gray-100 bg-gray-50 flex items-center justify-between hover:shadow-md transition-shadow">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
-                        <FaUser size={14} />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-gray-800">{order.customer}</h4>
-                        <p className="text-xs text-gray-500">{order.item}</p>
+              {/* Stats Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                {stats.map((stat, index) => (
+                  <motion.div 
+                    key={index}
+                    whileHover={{ y: -5 }}
+                    className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 relative overflow-hidden group"
+                  >
+                    <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${stat.color} opacity-10 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110`}></div>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className={`p-3 rounded-lg bg-gradient-to-br ${stat.color} text-white shadow-lg`}>
+                        {stat.icon}
                       </div>
                     </div>
-                    <div className="text-right">
-                      <span className="block text-xs font-semibold text-orange-600 bg-orange-100 px-2 py-1 rounded-full mb-1">
-                        {order.status}
-                      </span>
-                      <p className="text-xs text-gray-400">{order.date}</p>
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">{stat.title}</p>
+                      <h3 className="text-2xl font-bold text-gray-800 mt-1">{stat.value}</h3>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
-            </div>
 
-          </motion.div>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+                 {/* Recent Products */}
+                <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                  <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-lg font-bold text-gray-800">Recent Products</h2>
+                    <button className="text-sm text-indigo-600 hover:text-indigo-800 font-medium">View All</button>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="text-xs font-semibold tracking-wide text-gray-500 uppercase border-b border-gray-200">
+                          <th className="px-4 py-3">Product</th>
+                          <th className="px-4 py-3">Category</th>
+                          <th className="px-4 py-3">Price</th>
+                          <th className="px-4 py-3">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-100">
+                        {recentProducts.map((product) => (
+                          <tr key={product.id} className="hover:bg-gray-50 transition-colors">
+                            <td className="px-4 py-3">
+                              <div className="flex items-center text-sm">
+                                <div className="relative hidden w-10 h-10 mr-3 rounded-lg md:block bg-gray-200">
+                                   <div className="absolute inset-0 flex items-center justify-center text-gray-500 text-xs">IMG</div>
+                                </div>
+                                <div>
+                                  <p className="font-semibold text-gray-700">{product.name}</p>
+                                  <p className="text-xs text-gray-500">ID: #{product.id}</p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3 text-sm text-gray-600">{product.category}</td>
+                            <td className="px-4 py-3 text-sm font-medium text-gray-800">{product.price}</td>
+                            <td className="px-4 py-3 text-sm">
+                              <span className={`px-2 py-1 font-semibold leading-tight rounded-full text-xs ${getStatusColor(product.status)}`}>
+                                {product.status}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Earnings Chart */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                  <h2 className="text-lg font-bold text-gray-800 mb-2">Earnings Overview</h2>
+                  <p className="text-sm text-gray-500 mb-6">Monthly revenue trends</p>
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={chartData}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                        <XAxis 
+                          dataKey="name" 
+                          axisLine={false} 
+                          tickLine={false} 
+                          tick={{fill: '#9ca3af', fontSize: 12}} 
+                          dy={10}
+                        />
+                        <YAxis 
+                          axisLine={false} 
+                          tickLine={false} 
+                          tick={{fill: '#9ca3af', fontSize: 12}} 
+                        />
+                        <Tooltip 
+                          contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
+                        />
+                        <Line 
+                          type="monotone" 
+                          dataKey="earnings" 
+                          stroke="#4f46e5" 
+                          strokeWidth={3} 
+                          dot={{ r: 4, fill: '#4f46e5', strokeWidth: 2, stroke: '#fff' }} 
+                          activeDot={{ r: 6 }} 
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              </div>
+
+              {/* Pending Orders */}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-lg font-bold text-gray-800">Pending Orders</h2>
+                  <button className="text-sm text-indigo-600 hover:text-indigo-800 font-medium">View All Orders</button>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {pendingOrders.map((order) => (
+                    <div key={order.id} className="p-4 rounded-lg border border-gray-100 bg-gray-50 flex items-center justify-between hover:shadow-md transition-shadow">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                          <FaUser size={14} />
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-gray-800">{order.customer}</h4>
+                          <p className="text-xs text-gray-500">{order.item}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <span className="block text-xs font-semibold text-orange-600 bg-orange-100 px-2 py-1 rounded-full mb-1">
+                          {order.status}
+                        </span>
+                        <p className="text-xs text-gray-400">{order.date}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+            </motion.div>
+          ) : currentView === "products" ? (
+            <AddProduct onCancel={() => setCurrentView("dashboard")} />
+          ) : (
+            <div className="flex items-center justify-center h-full text-gray-500 italic">
+              View for "{currentView}" is under development.
+            </div>
+          )}
         </main>
       </div>
     </div>

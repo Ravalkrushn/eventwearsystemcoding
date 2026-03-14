@@ -24,7 +24,8 @@ app.use('/uploads', express.static('uploads'));
 
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
-// app.use('/api/admin', require('./routes/adminRoutes'));
+app.use('/api/products', require('./routes/productRoutes'));
+app.use('/api/admin', require('./routes/adminRoutes'));
 // app.use('/api/vendor', require('./routes/vendorRoutes'));
 // app.use('/api/customer', require('./routes/customerRoutes'));
 

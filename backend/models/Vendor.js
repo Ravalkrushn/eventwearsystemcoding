@@ -62,6 +62,10 @@ const vendorSchema = new mongoose.Schema({
   isApproved: {
     type: Boolean,
     default: false
+  },
+  shopImage: {
+    type: String,
+    // required: [true, 'Shop image is required'] // Making it optional for now or required based on user's need. User said "ak shop ka photo bhi ho"
   }
 }, { timestamps: true });
 
