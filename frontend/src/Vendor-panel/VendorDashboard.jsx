@@ -78,7 +78,7 @@ const VendorDashboard = () => {
         transition={{ duration: 0.3 }}
         className="bg-gray-900 text-white flex flex-col fixed md:relative z-20 h-full shadow-xl"
       >
-        <div className="h-16 flex items-center justify-center border-b border-gray-800">
+        <div className="h-20 flex items-center justify-center border-b border-gray-800">
           <div className="flex items-center gap-2 font-bold text-xl">
             <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">V</div>
             {isSidebarOpen && <span className="tracking-wide">VendorPanel</span>}
@@ -115,7 +115,7 @@ const VendorDashboard = () => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top Navbar */}
-        <header className="h-16 bg-white shadow-sm flex items-center justify-between px-6 z-10">
+        <header className="h-20 bg-white shadow-sm flex items-center justify-between px-6 z-10">
           <button onClick={() => setSidebarOpen(!isSidebarOpen)} className="text-gray-600 hover:text-gray-900 focus:outline-none">
             <FaBars size={20} />
           </button>

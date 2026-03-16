@@ -1,21 +1,23 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { 
-  FaUsers, 
-  FaStore, 
-  FaBox, 
-  FaChartLine, 
-  FaCheckCircle, 
-  FaTimesCircle, 
-  FaBell, 
-  FaSearch, 
-  FaBars, 
+import {
+  FaUsers,
+  FaStore,
+  FaBox,
+  FaChartLine,
+  FaCheckCircle,
+  FaTimesCircle,
+  FaBell,
+  FaSearch,
+  FaBars,
   FaSignOutAlt,
   FaCog,
   FaArrowRight
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import VendorManager from "./components/VendorManager";
+import CategoryManager from "./components/CategoryManager";
+import { FaTags } from "react-icons/fa";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -44,7 +46,7 @@ const AdminDashboard = () => {
         animate={{ width: isSidebarOpen ? 260 : 80 }}
         className="bg-gray-900 text-white flex flex-col fixed h-full z-30 transition-all shadow-2xl"
       >
-        <div className="h-20 flex items-center px-6 border-b border-gray-800">
+        <div className="h-24 flex items-center px-6 border-b border-gray-800">
           <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center font-bold text-xl shadow-lg ring-4 ring-indigo-600/20">A</div>
           {isSidebarOpen && <span className="ml-3 font-bold text-xl tracking-tight">Admin<span className="text-indigo-500">Hub</span></span>}
         </div>
@@ -53,6 +55,7 @@ const AdminDashboard = () => {
           {[
             { id: "overview", name: "Overview", icon: <FaChartLine /> },
             { id: "vendors", name: "Vendors", icon: <FaStore /> },
+            { id: "categories", name: "Categories", icon: <FaTags /> },
             { id: "users", name: "Customers", icon: <FaUsers /> },
             { id: "products", name: "Products", icon: <FaBox /> },
             { id: "settings", name: "Settings", icon: <FaCog /> },
@@ -60,11 +63,10 @@ const AdminDashboard = () => {
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`flex items-center w-full p-3.5 rounded-xl transition-all ${
-                activeTab === item.id 
-                  ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/30" 
+              className={`flex items-center w-full p-3.5 rounded-xl transition-all ${activeTab === item.id
+                  ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/30"
                   : "text-gray-400 hover:bg-gray-800 hover:text-white"
-              }`}
+                }`}
             >
               <span className="text-xl">{item.icon}</span>
               {isSidebarOpen && <span className="ml-4 font-semibold text-sm">{item.name}</span>}
@@ -73,7 +75,7 @@ const AdminDashboard = () => {
         </nav>
 
         <div className="p-6 border-t border-gray-800">
-          <button 
+          <button
             onClick={() => navigate("/login")}
             className="flex items-center w-full p-3 text-red-400 hover:text-white hover:bg-red-500/10 rounded-xl transition-all group"
           >
@@ -86,8 +88,7 @@ const AdminDashboard = () => {
       {/* Main Content Area */}
       <div className={`flex-1 flex flex-col transition-all duration-300 ${isSidebarOpen ? "ml-[260px]" : "ml-[80px]"}`}>
         {/* Header */}
-        <header className="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-8 sticky top-0 z-20">
-          <button 
+<header className="bg-white border-b border-gray-100 flex items-center justify-between px-18 py-6 sticky top-0 z-20">          <button
             onClick={() => setSidebarOpen(!isSidebarOpen)}
             className="p-2.5 bg-gray-50 text-gray-600 hover:text-indigo-600 rounded-xl transition-colors shadow-sm"
           >
@@ -97,9 +98,9 @@ const AdminDashboard = () => {
           <div className="flex items-center gap-6">
             <div className="relative hidden lg:block">
               <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input 
-                type="text" 
-                placeholder="Search anything..." 
+              <input
+                type="text"
+                placeholder="Search anything..."
                 className="pl-12 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm w-80 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
               />
             </div>
@@ -151,7 +152,7 @@ const AdminDashboard = () => {
                     <h2 className="text-xl font-black text-gray-900">Item Approvals Required</h2>
                     <button className="text-sm font-bold text-indigo-600 hover:bg-indigo-50 px-4 py-2 rounded-xl transition-all">View All Products</button>
                   </div>
-                  
+
                   <div className="space-y-6">
                     {pendingApprovals.map((item) => (
                       <div key={item.id} className="flex items-center justify-between p-5 rounded-2xl border border-gray-50 bg-gray-50/50 hover:bg-white hover:shadow-md transition-all group">
@@ -175,7 +176,7 @@ const AdminDashboard = () => {
                 <div className="bg-gradient-to-br from-indigo-900 to-indigo-700 rounded-3xl shadow-2xl p-8 text-white relative overflow-hidden">
                   <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
                   <h2 className="text-xl font-black mb-10 relative z-10">System Alerts</h2>
-                  
+
                   <div className="space-y-6 relative z-10">
                     <div className="flex gap-4 items-start p-4 bg-white/10 rounded-2xl backdrop-blur-sm border border-white/10">
                       <div className="w-2 h-2 bg-red-400 rounded-full mt-2 ring-4 ring-red-400/20"></div>
@@ -204,6 +205,12 @@ const AdminDashboard = () => {
           {activeTab === "vendors" && (
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
               <VendorManager />
+            </motion.div>
+          )}
+
+          {activeTab === "categories" && (
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+              <CategoryManager />
             </motion.div>
           )}
 
