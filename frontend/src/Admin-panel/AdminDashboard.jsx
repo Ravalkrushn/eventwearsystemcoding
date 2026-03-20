@@ -17,7 +17,8 @@ import {
 import { useNavigate } from "react-router-dom";
 import VendorManager from "./components/VendorManager";
 import CategoryManager from "./components/CategoryManager";
-import { FaTags } from "react-icons/fa";
+import SizeManager from "./components/SizeManager";
+import { FaTags, FaRulerCombined } from "react-icons/fa";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -56,6 +57,7 @@ const AdminDashboard = () => {
             { id: "overview", name: "Overview", icon: <FaChartLine /> },
             { id: "vendors", name: "Vendors", icon: <FaStore /> },
             { id: "categories", name: "Categories", icon: <FaTags /> },
+            { id: "sizes", name: "Sizes", icon: <FaRulerCombined /> },
             { id: "users", name: "Customers", icon: <FaUsers /> },
             { id: "products", name: "Products", icon: <FaBox /> },
             { id: "settings", name: "Settings", icon: <FaCog /> },
@@ -214,7 +216,13 @@ const AdminDashboard = () => {
             </motion.div>
           )}
 
-          {activeTab !== "overview" && activeTab !== "vendors" && (
+          {activeTab === "sizes" && (
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+              <SizeManager />
+            </motion.div>
+          )}
+
+          {activeTab !== "overview" && activeTab !== "vendors" && activeTab !== "categories" && activeTab !== "sizes" && (
             <div className="flex flex-col items-center justify-center h-64 text-gray-400 font-medium italic border-2 border-dashed border-gray-100 rounded-3xl">
               <FaCog className="text-4xl mb-4 animate-spin-slow" />
               Section "{activeTab}" is coming soon...

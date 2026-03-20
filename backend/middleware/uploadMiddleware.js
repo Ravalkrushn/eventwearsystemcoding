@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 
 // Ensure upload directories exist
-const folders = ['uploads/products', 'uploads/vendors'];
+const folders = ['uploads/products', 'uploads/vendors', 'uploads/categories'];
 folders.forEach(dir => {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
@@ -12,8 +12,10 @@ folders.forEach(dir => {
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    // Check if it's a shop image or product image
-    const folder = file.fieldname === 'shopImage' ? 'uploads/vendors' : 'uploads/products';
+    // Check which folder to use based on fieldname
+    let folder = 'uploads/products';
+    if (file.fieldname === 'shopImage') folder = 'uploads/vendors';
+    if (file.fieldname === 'image') folder = 'uploads/categories';
     cb(null, folder);
   },
   filename: function (req, file, cb) {

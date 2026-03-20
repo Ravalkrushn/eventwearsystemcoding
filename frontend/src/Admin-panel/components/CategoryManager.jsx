@@ -24,8 +24,10 @@ const CategoryManager = () => {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    isActive: true
+    isActive: true,
+    image: null
   });
+  const [imagePreview, setImagePreview] = useState(null);
 
   const fetchCategories = async () => {
     try {
@@ -51,14 +53,34 @@ const CategoryManager = () => {
     }));
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData(prev => ({ ...prev, image: file }));
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const data = new FormData();
+      data.append("name", formData.name);
+      data.append("description", formData.description);
+      data.append("isActive", formData.isActive);
+      if (formData.image) {
+        data.append("image", formData.image);
+      }
+
+      const config = {
+        headers: { "Content-Type": "multipart/form-data" }
+      };
+
       if (isEditing) {
-        await axios.put(`http://localhost:5000/api/admin/categories/${currentId}`, formData);
+        await axios.put(`http://localhost:5000/api/admin/categories/${currentId}`, data, config);
         toast.success("Category updated successfully");
       } else {
-        await axios.post("http://localhost:5000/api/admin/categories", formData);
+        await axios.post("http://localhost:5000/api/admin/categories", data, config);
         toast.success("Category added successfully");
       }
       setShowModal(false);
@@ -73,8 +95,10 @@ const CategoryManager = () => {
     setFormData({
       name: category.name,
       description: category.description || "",
-      isActive: category.isActive
+      isActive: category.isActive,
+      image: null
     });
+    setImagePreview(category.image ? `http://localhost:5000${category.image}` : null);
     setCurrentId(category._id);
     setIsEditing(true);
     setShowModal(true);
@@ -96,8 +120,10 @@ const CategoryManager = () => {
     setFormData({
       name: "",
       description: "",
-      isActive: true
+      isActive: true,
+      image: null
     });
+    setImagePreview(null);
     setIsEditing(false);
     setCurrentId(null);
   };
@@ -144,6 +170,7 @@ const CategoryManager = () => {
           <table className="w-full text-left">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-100">
+                <th className="px-8 py-5 text-sm font-bold text-gray-400 uppercase tracking-wider">Image</th>
                 <th className="px-8 py-5 text-sm font-bold text-gray-400 uppercase tracking-wider">Category Name</th>
                 <th className="px-8 py-5 text-sm font-bold text-gray-400 uppercase tracking-wider">Description</th>
                 <th className="px-8 py-5 text-sm font-bold text-gray-400 uppercase tracking-wider">Status</th>
@@ -154,12 +181,22 @@ const CategoryManager = () => {
               {filteredCategories.map((category) => (
                 <tr key={category._id} className="hover:bg-gray-50/50 transition-colors group">
                   <td className="px-8 py-5">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center">
-                        <FaTags />
-                      </div>
-                      <span className="font-bold text-gray-900">{category.name}</span>
+                    <div className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden border border-gray-100">
+                      {category.image ? (
+                        <img 
+                          src={`http://localhost:5000${category.image}`} 
+                          alt={category.name} 
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-400">
+                          <FaTags />
+                        </div>
+                      )}
                     </div>
+                  </td>
+                  <td className="px-8 py-5">
+                    <span className="font-bold text-gray-900">{category.name}</span>
                   </td>
                   <td className="px-8 py-5">
                     <span className="text-sm text-gray-500 font-medium">{category.description || "No description"}</span>
@@ -237,7 +274,7 @@ const CategoryManager = () => {
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-bold text-gray-500 block mb-2 uppercase">Description</label>
+                  <label className="text-xs font-bold text-gray-500 block mb-2 uppercase">Category Description</label>
                   <textarea 
                     name="description" 
                     rows="3"
@@ -246,6 +283,27 @@ const CategoryManager = () => {
                     className="w-full px-4 py-3 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-indigo-500/20 outline-none font-medium transition-all"
                     placeholder="Short description..."
                   />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-gray-500 block mb-2 uppercase">Category Image</label>
+                  <div className="flex items-center gap-4">
+                    {imagePreview && (
+                      <div className="w-20 h-20 rounded-2xl overflow-hidden border-2 border-indigo-100">
+                        <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                    <label className="flex-1">
+                      <div className="w-full px-4 py-3 rounded-2xl bg-gray-50 border-2 border-dashed border-gray-200 hover:border-indigo-400 transition-colors cursor-pointer flex items-center justify-center gap-2 text-gray-500 font-bold text-sm">
+                        <FaPlus /> {imagePreview ? "Change Image" : "Upload Image"}
+                      </div>
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={handleFileChange} 
+                        className="hidden" 
+                      />
+                    </label>
+                  </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <input 

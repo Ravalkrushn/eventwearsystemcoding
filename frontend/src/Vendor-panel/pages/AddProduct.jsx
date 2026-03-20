@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { FaCloudUploadAlt, FaTimes, FaPlus, FaTshirt, FaTag, FaRupeeSign, FaInfoCircle } from "react-icons/fa";
 import { toast } from "react-hot-toast";
@@ -19,18 +19,25 @@ const AddProduct = ({ onCancel }) => {
   const [images, setImages] = useState([]);
   const [previews, setPreviews] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [sizes, setSizes] = useState([]);
 
-  const categories = [
-    "Wedding Wear",
-    "Party Wear",
-    "Festival Wear",
-    "Formal Wear",
-    "Traditional Wear",
-    "Western Wear",
-    "Other",
-  ];
-
-  const sizes = ["S", "M", "L", "XL", "XXL", "Free Size"];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [catRes, sizeRes] = await Promise.all([
+          axios.get("http://localhost:5000/api/admin/categories"),
+          axios.get("http://localhost:5000/api/admin/sizes")
+        ]);
+        setCategories(catRes.data.data.filter(c => c.isActive));
+        setSizes(sizeRes.data.data);
+      } catch (err) {
+        console.error("Failed to fetch categories/sizes:", err);
+        // Fallback to defaults or empty if needed
+      }
+    };
+    fetchData();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -200,8 +207,8 @@ const AddProduct = ({ onCancel }) => {
                   className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all appearance-none bg-white"
                 >
                   <option value="">Select Category</option>
-                  {categories.map((cat) => (
-                    <option key={cat} value={cat}>{cat}</option>
+                   {categories.map((cat) => (
+                    <option key={cat._id} value={cat.name}>{cat.name}</option>
                   ))}
                 </select>
               </div>
@@ -256,8 +263,10 @@ const AddProduct = ({ onCancel }) => {
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
               >
                 <option value="">Select Size</option>
-                {sizes.map((s) => (
-                  <option key={s} value={s}>{s}</option>
+                 {sizes.map((s) => (
+                  <option key={s._id} value={s.name}>
+                    {s.name} ({s.ageRange})
+                  </option>
                 ))}
               </select>
             </div>

@@ -1,5 +1,7 @@
 const Vendor = require('../models/Vendor');
 const Product = require('../models/Product');
+const path = require('path');
+const fs = require('fs');
 
 // @desc    Get all active vendors
 // @route   GET /api/vendors
@@ -47,6 +49,57 @@ exports.getVendorsByCategory = async (req, res, next) => {
       success: true,
       count: vendors.length,
       data: vendors
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get specific vendor profile
+// @route   GET /api/vendors/profile/:id
+// @access  Public (should be protected in real app)
+exports.getVendorProfile = async (req, res, next) => {
+  try {
+    const vendor = await Vendor.findById(req.params.id).select('-password');
+    if (!vendor) {
+      return res.status(404).json({ success: false, message: 'Vendor not found' });
+    }
+    res.status(200).json({
+      success: true,
+      data: vendor
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Update vendor profile (including shop image)
+// @route   PUT /api/vendors/profile/:id
+// @access  Public (should be protected)
+exports.updateVendorProfile = async (req, res, next) => {
+  try {
+    let vendor = await Vendor.findById(req.params.id);
+
+    if (!vendor) {
+      return res.status(404).json({ success: false, message: 'Vendor not found' });
+    }
+
+    const updateData = { ...req.body };
+
+    // Handle shop image upload
+    if (req.file) {
+      updateData.shopImage = `/uploads/vendors/${req.file.filename}`;
+    }
+
+    vendor = await Vendor.findByIdAndUpdate(req.params.id, updateData, {
+      new: true,
+      runValidators: true
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Profile updated successfully',
+      data: vendor
     });
   } catch (error) {
     next(error);

@@ -1,11 +1,40 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { FaArrowRight } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Categories = () => {
     const navigate = useNavigate();
-  const categories = [
+    const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/api/admin/categories");
+        if (res.data.success && res.data.data.length > 0) {
+          // Map API data to the format needed for the grid
+          const dynamicCategories = res.data.data
+            .filter(cat => cat.isActive)
+            .map((cat, index) => ({
+              title: cat.name,
+              description: cat.description || "Curated collection",
+              image: cat.image ? `http://localhost:5000${cat.image}` : "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=600&q=80",
+              cols: index === 0 ? "md:col-span-2 md:row-span-2" : "md:col-span-1 md:row-span-1"
+            }));
+          setCategories(dynamicCategories);
+        } else {
+            setCategories(staticCategories);
+        }
+      } catch (err) {
+        console.error("Error fetching categories:", err);
+        setCategories(staticCategories);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  const staticCategories = [
     {
       title: "Wedding",
       description: "Bridal lehengas, Sherwanis & more",

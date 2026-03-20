@@ -1,5 +1,6 @@
 const Vendor = require('../models/Vendor');
 const Category = require('../models/Category');
+const Size = require('../models/Size');
 
 // @desc    Get all vendors
 // @route   GET /api/admin/vendors
@@ -100,7 +101,7 @@ exports.createVendorByAdmin = async (req, res, next) => {
 // @access  Private (Admin)
 exports.getCategories = async (req, res, next) => {
   try {
-    const categories = await Category.find().sort('-createdAt');
+    const categories = await Category.find().sort('createdAt');
     res.status(200).json({
       success: true,
       count: categories.length,
@@ -116,7 +117,12 @@ exports.getCategories = async (req, res, next) => {
 // @access  Private (Admin)
 exports.createCategory = async (req, res, next) => {
   try {
-    const category = await Category.create(req.body);
+    const categoryData = {
+      ...req.body,
+      image: req.file ? `/uploads/categories/${req.file.filename}` : null
+    };
+    
+    const category = await Category.create(categoryData);
     res.status(201).json({
       success: true,
       data: category
@@ -134,7 +140,13 @@ exports.createCategory = async (req, res, next) => {
 // @access  Private (Admin)
 exports.updateCategory = async (req, res, next) => {
   try {
-    const category = await Category.findByIdAndUpdate(req.params.id, req.body, {
+    let categoryData = { ...req.body };
+    
+    if (req.file) {
+      categoryData.image = `/uploads/categories/${req.file.filename}`;
+    }
+
+    const category = await Category.findByIdAndUpdate(req.params.id, categoryData, {
       new: true,
       runValidators: true
     });
@@ -168,6 +180,83 @@ exports.deleteCategory = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: 'Category deleted successfully'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+// --- Size Management ---
+
+// @desc    Get all sizes
+// @route   GET /api/admin/sizes
+// @access  Public (or Private Admin)
+exports.getSizes = async (req, res, next) => {
+  try {
+    const sizes = await Size.find().sort('createdAt');
+    res.status(200).json({
+      success: true,
+      count: sizes.length,
+      data: sizes
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Create size
+// @route   POST /api/admin/sizes
+// @access  Private (Admin)
+exports.createSize = async (req, res, next) => {
+  try {
+    const size = await Size.create(req.body);
+    res.status(201).json({
+      success: true,
+      data: size
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Update size
+// @route   PUT /api/admin/sizes/:id
+// @access  Private (Admin)
+exports.updateSize = async (req, res, next) => {
+  try {
+    const size = await Size.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true
+    });
+
+    if (!size) {
+      return res.status(404).json({ success: false, message: 'Size not found' });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: size
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Delete size
+// @route   DELETE /api/admin/sizes/:id
+// @access  Private (Admin)
+exports.deleteSize = async (req, res, next) => {
+  try {
+    const size = await Size.findById(req.params.id);
+
+    if (!size) {
+      return res.status(404).json({ success: false, message: 'Size not found' });
+    }
+
+    await size.deleteOne();
+
+    res.status(200).json({
+      success: true,
+      message: 'Size deleted successfully'
     });
   } catch (error) {
     next(error);

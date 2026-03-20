@@ -25,11 +25,22 @@ import {
 } from "recharts";
 import { useNavigate } from "react-router-dom";
 import AddProduct from "./pages/AddProduct";
+import VendorProfile from "./pages/VendorProfile";
 
 const VendorDashboard = () => {
   const navigate = useNavigate();
   const [isSidebarOpen, setSidebarOpen] = useState(true);
   const [currentView, setCurrentView] = useState("dashboard"); // View state
+
+  // Get user data from localStorage
+  const user = JSON.parse(localStorage.getItem('user')) || { name: "John Doe" };
+  const getInitials = (name) => {
+    return name
+      .split(' ')
+      .map(word => word[0])
+      .join('')
+      .toUpperCase();
+  };
 
   // Mock Data
   const stats = [
@@ -91,6 +102,7 @@ const VendorDashboard = () => {
             { id: "products", name: "Products", icon: <FaList /> },
             { id: "orders", name: "Orders", icon: <FaCheckCircle /> },
             { id: "earnings", name: "Earnings", icon: <FaMoneyBillWave /> },
+            { id: "profile", name: "Profile", icon: <FaUser /> },
             { id: "settings", name: "Settings", icon: <FaCog /> },
           ].map((item) => (
             <button 
@@ -105,7 +117,13 @@ const VendorDashboard = () => {
         </nav>
 
         <div className="p-4 border-t border-gray-800">
-          <button onClick={() => navigate('/login')} className="flex items-center w-full p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors">
+          <button 
+            onClick={() => {
+              localStorage.clear();
+              navigate('/login');
+            }} 
+            className="flex items-center w-full p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
+          >
             <FaSignOutAlt />
             {isSidebarOpen && <span className="ml-3">Logout</span>}
           </button>
@@ -137,9 +155,9 @@ const VendorDashboard = () => {
 
             <div className="flex items-center space-x-2">
                <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold border border-indigo-200">
-                 JD
+                 {getInitials(user.name)}
                </div>
-               <span className="hidden md:block text-sm font-semibold text-gray-700">John Doe</span>
+               <span className="hidden md:block text-sm font-semibold text-gray-700">{user.name}</span>
             </div>
           </div>
         </header>
@@ -155,7 +173,7 @@ const VendorDashboard = () => {
               {/* Welcome & Quick Actions */}
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-800">Welcome back, John! 👋</h1>
+                  <h1 className="text-2xl font-bold text-gray-800">Welcome back, {user.name.split(' ')[0]}! 👋</h1>
                   <p className="text-gray-500 mt-1">Here's what's happening with your store today.</p>
                 </div>
                 <div className="flex flex-wrap gap-3">
@@ -307,6 +325,8 @@ const VendorDashboard = () => {
             </motion.div>
           ) : currentView === "products" ? (
             <AddProduct onCancel={() => setCurrentView("dashboard")} />
+          ) : currentView === "profile" ? (
+            <VendorProfile />
           ) : (
             <div className="flex items-center justify-center h-full text-gray-500 italic">
               View for "{currentView}" is under development.
