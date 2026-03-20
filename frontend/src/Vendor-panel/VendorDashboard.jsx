@@ -26,6 +26,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import AddProduct from "./pages/AddProduct";
 import VendorProfile from "./pages/VendorProfile";
+import ViewProducts from "./pages/ViewProducts";
 
 const VendorDashboard = () => {
   const navigate = useNavigate();
@@ -99,7 +100,8 @@ const VendorDashboard = () => {
         <nav className="flex-1 py-6 px-3 space-y-2 overflow-y-auto">
           {[
             { id: "dashboard", name: "Dashboard", icon: <FaBox /> },
-            { id: "products", name: "Products", icon: <FaList /> },
+            { id: "view-products", name: "View Products", icon: <FaList /> },
+            { id: "products", name: "Add Product", icon: <FaPlus /> },
             { id: "orders", name: "Orders", icon: <FaCheckCircle /> },
             { id: "earnings", name: "Earnings", icon: <FaMoneyBillWave /> },
             { id: "profile", name: "Profile", icon: <FaUser /> },
@@ -325,6 +327,8 @@ const VendorDashboard = () => {
             </motion.div>
           ) : currentView === "products" ? (
             <AddProduct onCancel={() => setCurrentView("dashboard")} />
+          ) : currentView === "view-products" ? (
+            <ViewProducts onAddProduct={() => setCurrentView("products")} />
           ) : currentView === "profile" ? (
             <VendorProfile />
           ) : (

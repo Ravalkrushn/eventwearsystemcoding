@@ -78,3 +78,26 @@ exports.getVendorProducts = async (req, res, next) => {
     next(error);
   }
 };
+
+// @desc    Delete product
+// @route   DELETE /api/products/:id
+// @access  Private (Vendor/Admin)
+exports.deleteProduct = async (req, res, next) => {
+  try {
+    const product = await Product.findById(req.params.id);
+
+    if (!product) {
+      return res.status(404).json({ success: false, message: 'Product not found' });
+    }
+
+    // Optional: check if product belongs to user (req.user.id)
+    await product.deleteOne();
+
+    res.status(200).json({
+      success: true,
+      message: 'Product deleted successfully'
+    });
+  } catch (error) {
+    next(error);
+  }
+};

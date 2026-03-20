@@ -9,7 +9,11 @@ import {
   FaSearch, 
   FaSpinner, 
   FaTimes,
-  FaInfoCircle
+  FaInfoCircle,
+  FaChevronLeft,
+  FaChevronRight,
+  FaAngleDoubleLeft,
+  FaAngleDoubleRight
 } from "react-icons/fa";
 import { toast } from "react-hot-toast";
 
@@ -26,6 +30,9 @@ const SizeManager = () => {
     ageRange: "",
     notes: ""
   });
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(8);
 
   const fetchSizes = async () => {
     try {
@@ -107,6 +114,24 @@ const SizeManager = () => {
     s.ageRange.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Pagination Logic
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredSizes.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredSizes.length / itemsPerPage);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages);
+    }
+  }, [totalPages, currentPage]);
+
   return (
     <div className="space-y-8">
       {/* Header Actions */}
@@ -152,7 +177,7 @@ const SizeManager = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {filteredSizes.map((size) => (
+              {currentItems.map((size) => (
                 <tr key={size._id} className="hover:bg-gray-50/50 transition-colors group">
                   <td className="px-8 py-5 font-black text-indigo-600">{size.name}</td>
                   <td className="px-8 py-5 font-bold text-gray-900">{size.ageRange}</td>
@@ -175,13 +200,85 @@ const SizeManager = () => {
                   </td>
                 </tr>
               ))}
-              {filteredSizes.length === 0 && (
+              {currentItems.length === 0 && (
                 <tr>
                   <td colSpan="5" className="px-8 py-10 text-center text-gray-400 italic">No sizes found.</td>
                 </tr>
               )}
             </tbody>
           </table>
+
+          {/* Pagination UI */}
+          {totalPages > 1 && (
+            <div className="px-8 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
+              <div className="text-sm text-gray-500 font-medium">
+                Showing <span className="text-gray-900 font-bold">{indexOfFirstItem + 1}</span> to <span className="text-gray-900 font-bold">{Math.min(indexOfLastItem, filteredSizes.length)}</span> of <span className="text-gray-900 font-bold">{filteredSizes.length}</span> sizes
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => paginate(1)}
+                  disabled={currentPage === 1}
+                  className={`p-2 rounded-lg transition-all ${currentPage === 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:bg-indigo-50 hover:text-indigo-600'}`}
+                >
+                  <FaAngleDoubleLeft />
+                </button>
+                <button
+                  onClick={() => paginate(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className={`p-2 rounded-lg transition-all ${currentPage === 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:bg-indigo-50 hover:text-indigo-600'}`}
+                >
+                  <FaChevronLeft />
+                </button>
+                
+                <div className="flex items-center gap-1">
+                  {[...Array(totalPages)].map((_, index) => {
+                    const pageNum = index + 1;
+                    // Only show current page, 1, last page, and pages around current
+                    if (
+                      pageNum === 1 || 
+                      pageNum === totalPages || 
+                      (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                    ) {
+                      return (
+                        <button
+                          key={pageNum}
+                          onClick={() => paginate(pageNum)}
+                          className={`w-10 h-10 rounded-xl font-bold transition-all ${
+                            currentPage === pageNum 
+                              ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' 
+                              : 'text-gray-600 hover:bg-gray-100 hover:text-indigo-600'
+                          }`}
+                        >
+                          {pageNum}
+                        </button>
+                      );
+                    } else if (
+                      (pageNum === currentPage - 2 && pageNum > 1) || 
+                      (pageNum === currentPage + 2 && pageNum < totalPages)
+                    ) {
+                      return <span key={pageNum} className="px-1 text-gray-400">...</span>;
+                    }
+                    return null;
+                  })}
+                </div>
+
+                <button
+                  onClick={() => paginate(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className={`p-2 rounded-lg transition-all ${currentPage === totalPages ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:bg-indigo-50 hover:text-indigo-600'}`}
+                >
+                  <FaChevronRight />
+                </button>
+                <button
+                  onClick={() => paginate(totalPages)}
+                  disabled={currentPage === totalPages}
+                  className={`p-2 rounded-lg transition-all ${currentPage === totalPages ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:bg-indigo-50 hover:text-indigo-600'}`}
+                >
+                  <FaAngleDoubleRight />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
