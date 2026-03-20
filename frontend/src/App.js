@@ -7,6 +7,7 @@ import Login from './loign-regis/Login';
 import Registration from './loign-regis/Registration';
 import VendorDashboard from './Vendor-panel/VendorDashboard';
 import AdminDashboard from './Admin-panel/AdminDashboard';
+import CustomerProfile from './Customer-panel/profile/CustomerProfile';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/register" element={<Registration />} />
         <Route path="/vendor-dashboard" element={<VendorDashboard />} />
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
+        <Route path="/profile" element={<CustomerProfile />} />
         <Route path="/category/:categoryName" element={<ShopsByCategory />} />
       </Routes>
     </Router>

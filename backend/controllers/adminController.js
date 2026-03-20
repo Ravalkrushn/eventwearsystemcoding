@@ -1,6 +1,7 @@
 const Vendor = require('../models/Vendor');
 const Category = require('../models/Category');
 const Size = require('../models/Size');
+const sendEmail = require('../utils/sendEmail');
 
 // @desc    Get all vendors
 // @route   GET /api/admin/vendors
@@ -32,6 +33,35 @@ exports.toggleVendorStatus = async (req, res, next) => {
     // Toggle isActive field (we'll add this to schema)
     vendor.isApproved = !vendor.isApproved; // Using isApproved as the status for now as requested for activate/deactivate
     await vendor.save();
+
+    // Send Email Notification if Approved
+    if (vendor.isApproved) {
+      try {
+        await sendEmail({
+          email: vendor.email,
+          subject: 'Your Vendor Account is Approved!',
+          html: `
+            <div style="font-family: sans-serif; padding: 20px; color: #333;">
+              <h1 style="color: #4f46e5;">Welcome to EventWear Rental Hub!</h1>
+              <p>Hello <strong>${vendor.ownerName}</strong>,</p>
+              <p>We are excited to inform you that your vendor account request for <strong>${vendor.shopName}</strong> has been approved by the admin.</p>
+              <p>You can now log in to the portal and start listing your products.</p>
+              <a href="http://localhost:3000/login" style="display: inline-block; padding: 10px 20px; background-color: #4f46e5; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">Login Now</a>
+              <p style="margin-top: 20px;">If you have any questions, feel free to contact us.</p>
+              <hr />
+              <p style="font-size: 12px; color: #777;">&copy; 2026 EventWear Rental Hub. All rights reserved.</p>
+            </div>
+          `
+        });
+      } catch (err) {
+        console.error('❌ Welcome Email Error:', err.message);
+        return res.status(200).json({
+          success: true,
+          message: `Vendor ${vendor.isApproved ? 'Activated' : 'Deactivated'} successfully, but email notification failed: ${err.message}`,
+          data: vendor
+        });
+      }
+    }
 
     res.status(200).json({
       success: true,

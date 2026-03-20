@@ -13,6 +13,12 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Fix for OpaqueResponseBlocking (ORB)
+app.use((req, res, next) => {
+  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+  next();
+});
+
 // Request Logger
 app.use((req, res, next) => {
   console.log(`📡 ${req.method} ${req.url}`);
@@ -27,7 +33,7 @@ app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/products', require('./routes/productRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
 app.use('/api/vendors', require('./routes/vendorRoutes'));
-// app.use('/api/customer', require('./routes/customerRoutes'));
+app.use('/api/customer', require('./routes/customerRoutes'));
 
 // Home route
 app.get('/', (req, res) => {

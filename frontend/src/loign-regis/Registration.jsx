@@ -22,6 +22,7 @@ const Registration = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [shopImage, setShopImage] = useState(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -296,8 +297,12 @@ const Registration = () => {
       });
 
       if (response.data.success) {
-        toast.success("Registration successful! Please login.");
-        navigate("/login");
+        if (role === 'vendor') {
+          setShowSuccessModal(true);
+        } else {
+          toast.success("Registration successful! Please login.");
+          navigate("/login");
+        }
       }
     } catch (error) {
       console.error("Registration Error Response:", error.response?.data);
@@ -311,8 +316,6 @@ const Registration = () => {
   const handleRoleSelect = (selectedRole) => {
     setRole(selectedRole);
     setErrors({});
-    // Reset form data for cleaner transition if needed,
-    // but keeping it allows switching back without data loss
   };
 
   const nextStep = () => {
@@ -446,7 +449,6 @@ const Registration = () => {
                       <div
                         key={field.name}
                         className={
-                          // Make some fields full width based on index or specific logic if needed
                           ["address", "shopName"].includes(field.name)
                             ? "sm:col-span-2"
                             : "col-span-1"
@@ -530,8 +532,7 @@ const Registration = () => {
                     >
                       {loading ? (
                         <>
-                          <FaSpinner className="animate-spin mr-2" /> Creating
-                          Account...
+                          <FaSpinner className="animate-spin mr-2" /> Creating Account...
                         </>
                       ) : (
                         "Submit Registration"
@@ -544,6 +545,47 @@ const Registration = () => {
           </AnimatePresence>
         </div>
       </div>
+
+      {/* Success Modal for Vendors */}
+      <AnimatePresence>
+        {showSuccessModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="relative bg-white w-full max-w-md rounded-3xl shadow-2xl p-8 text-center"
+            >
+              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <FaCheck className="text-3xl text-green-600" />
+              </div>
+              <h3 className="text-2xl font-black text-gray-900 mb-2">Registration Received!</h3>
+              <p className="text-gray-600 mb-8 font-medium italic">
+                Thank you for joining us. Your vendor profile is now under review. 
+                <span className="block mt-2 font-bold text-indigo-600">Admin will verify your details and approve your account shortly.</span>
+              </p>
+              <p className="text-sm text-gray-500 mb-8">
+                Once approved, you will receive an email confirmation and can then log in to start your shop.
+              </p>
+              <button
+                onClick={() => {
+                  setShowSuccessModal(false);
+                  navigate("/login");
+                }}
+                className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black shadow-xl shadow-indigo-200 hover:bg-indigo-700 transition"
+              >
+                Got it, take me to Login
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

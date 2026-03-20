@@ -8,12 +8,23 @@ import Categories from "./Categories";
 import HowItWorks from "./HowItWorks";
 import Testimonials from "./Testimonials";
 import Footer from "./Footer";
+import { toast } from "react-hot-toast";
+import { FaUserCircle, FaSignOutAlt } from "react-icons/fa";
 
 const LandingPage = () => {
   const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")) || null);
   const { scrollY } = useScroll();
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    setUser(null);
+    toast.success("Logged out successfully");
+    navigate("/");
+  };
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     setIsScrolled(latest > 50);
@@ -68,18 +79,43 @@ const LandingPage = () => {
 
             {/* Auth Buttons */}
             <div className="hidden md:flex items-center space-x-4">
-              <button
-                onClick={() => navigate("/login")}
-                className="px-5 py-2.5 text-sm font-semibold text-gray-700 hover:text-indigo-600 transition-colors"
-              >
-                Log In
-              </button>
-              <button
-                onClick={() => navigate("/register")}
-                className="px-5 py-2.5 bg-gray-900 text-white text-sm font-semibold rounded-full hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-              >
-                Get Started
-              </button>
+              {!user ? (
+                <>
+                  <button
+                    onClick={() => navigate("/login")}
+                    className="px-5 py-2.5 text-sm font-semibold text-gray-700 hover:text-indigo-600 transition-colors"
+                  >
+                    Log In
+                  </button>
+                  <button
+                    onClick={() => navigate("/register")}
+                    className="px-5 py-2.5 bg-gray-900 text-white text-sm font-semibold rounded-full hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                  >
+                    Get Started
+                  </button>
+                </>
+              ) : (
+                <div className="flex items-center space-x-4">
+                  <button
+                    onClick={() => {
+                      if (user.role === 'vendor') navigate("/vendor-dashboard");
+                      else if (user.role === 'admin') navigate("/admin-dashboard");
+                      else navigate("/profile"); 
+                    }}
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-gray-700 hover:text-indigo-600 transition-colors bg-white border border-gray-200 rounded-full shadow-sm"
+                  >
+                    <FaUserCircle className="text-xl" />
+                    Profile
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="p-2.5 text-gray-500 hover:text-red-600 transition-colors bg-gray-100 rounded-full hover:bg-red-50"
+                    title="Logout"
+                  >
+                    <FaSignOutAlt className="text-lg" />
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Mobile Toggle */}
@@ -116,18 +152,45 @@ const LandingPage = () => {
               </a>
             ))}
             <div className="pt-4 flex flex-col space-y-3 border-t border-gray-100">
-              <button
-                onClick={() => navigate("/login")}
-                className="w-full text-center py-2 text-gray-700 font-semibold"
-              >
-                Log In
-              </button>
-              <button
-                onClick={() => navigate("/register")}
-                className="w-full text-center py-2 bg-indigo-600 text-white rounded-lg font-semibold"
-              >
-                Get Started
-              </button>
+              {!user ? (
+                <>
+                  <button
+                    onClick={() => navigate("/login")}
+                    className="w-full text-center py-2 text-gray-700 font-semibold"
+                  >
+                    Log In
+                  </button>
+                  <button
+                    onClick={() => navigate("/register")}
+                    className="w-full text-center py-2 bg-indigo-600 text-white rounded-lg font-semibold"
+                  >
+                    Get Started
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      if (user.role === 'vendor') navigate("/vendor-dashboard");
+                      else if (user.role === 'admin') navigate("/admin-dashboard");
+                      else navigate("/profile");
+                    }}
+                    className="w-full text-center py-2 text-gray-700 font-semibold flex items-center justify-center gap-2"
+                  >
+                    <FaUserCircle /> Profile
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      handleLogout();
+                    }}
+                    className="w-full text-center py-2 bg-red-50 text-red-600 rounded-lg font-semibold flex items-center justify-center gap-2"
+                  >
+                    <FaSignOutAlt /> Log Out
+                  </button>
+                </>
+              )}
             </div>
           </motion.div>
         )}
