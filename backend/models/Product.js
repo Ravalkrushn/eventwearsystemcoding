@@ -13,16 +13,7 @@ const productSchema = new mongoose.Schema({
   },
   category: {
     type: String,
-    required: [true, 'Please select a category'],
-    enum: [
-      "Wedding Wear",
-      "Party Wear",
-      "Festival Wear",
-      "Formal Wear",
-      "Traditional Wear",
-      "Western Wear",
-      "Other"
-    ]
+    required: [true, 'Please select a category']
   },
   pricePerDay: {
     type: Number,
@@ -34,8 +25,7 @@ const productSchema = new mongoose.Schema({
   },
   size: {
     type: String,
-    required: [true, 'Please select a size'],
-    enum: ["S", "M", "L", "XL", "XXL", "Free Size"]
+    required: [true, 'Please select a size']
   },
   color: String,
   material: String,
@@ -50,7 +40,7 @@ const productSchema = new mongoose.Schema({
   status: {
     type: String,
     enum: ['pending', 'approved', 'rejected'],
-    default: 'pending'
+    default: 'approved'
   },
   createdAt: {
     type: Date,

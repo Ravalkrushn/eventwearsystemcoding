@@ -12,7 +12,8 @@ import {
   FaSearch, 
   FaBars, 
   FaSignOutAlt,
-  FaCog
+  FaCog,
+  FaShieldAlt
 } from "react-icons/fa";
 import { 
   LineChart, 
@@ -27,11 +28,13 @@ import { useNavigate } from "react-router-dom";
 import AddProduct from "./pages/AddProduct";
 import VendorProfile from "./pages/VendorProfile";
 import ViewProducts from "./pages/ViewProducts";
+import ManagePolicies from "./pages/ManagePolicies";
 
 const VendorDashboard = () => {
   const navigate = useNavigate();
   const [isSidebarOpen, setSidebarOpen] = useState(true);
   const [currentView, setCurrentView] = useState("dashboard"); // View state
+  const [productToEdit, setProductToEdit] = useState(null); // Product being edited
 
   // Get user data from localStorage
   const user = JSON.parse(localStorage.getItem('user')) || { name: "John Doe" };
@@ -105,11 +108,15 @@ const VendorDashboard = () => {
             { id: "orders", name: "Orders", icon: <FaCheckCircle /> },
             { id: "earnings", name: "Earnings", icon: <FaMoneyBillWave /> },
             { id: "profile", name: "Profile", icon: <FaUser /> },
+            { id: "policies", name: "Store Policies", icon: <FaShieldAlt /> },
             { id: "settings", name: "Settings", icon: <FaCog /> },
           ].map((item) => (
             <button 
               key={item.id}
-              onClick={() => setCurrentView(item.id)}
+              onClick={() => {
+                setCurrentView(item.id);
+                if (item.id === "products") setProductToEdit(null); // Reset when adding new
+              }}
               className={`flex items-center w-full p-3 rounded-lg transition-colors ${currentView === item.id ? "bg-indigo-600 text-white" : "text-gray-400 hover:bg-gray-800 hover:text-white"}`}
             >
               <span className="text-xl">{item.icon}</span>
@@ -326,11 +333,28 @@ const VendorDashboard = () => {
 
             </motion.div>
           ) : currentView === "products" ? (
-            <AddProduct onCancel={() => setCurrentView("dashboard")} />
+            <AddProduct 
+              productToEdit={productToEdit} 
+              onCancel={() => {
+                setCurrentView("view-products");
+                setProductToEdit(null);
+              }} 
+            />
           ) : currentView === "view-products" ? (
-            <ViewProducts onAddProduct={() => setCurrentView("products")} />
+            <ViewProducts 
+              onAddProduct={() => {
+                setProductToEdit(null);
+                setCurrentView("products");
+              }} 
+              onEditProduct={(product) => {
+                setProductToEdit(product);
+                setCurrentView("products");
+              }}
+            />
           ) : currentView === "profile" ? (
             <VendorProfile />
+          ) : currentView === "policies" ? (
+            <ManagePolicies />
           ) : (
             <div className="flex items-center justify-center h-full text-gray-500 italic">
               View for "{currentView}" is under development.

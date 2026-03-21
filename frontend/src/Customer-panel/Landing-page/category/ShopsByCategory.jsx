@@ -4,6 +4,8 @@ import axios from "axios";
 import { motion } from "framer-motion";
 import { FaStore, FaMapMarkerAlt, FaStar, FaArrowLeft, FaSpinner } from "react-icons/fa";
 
+import Navbar from "../../../components/Navbar";
+
 const ShopsByCategory = () => {
     const { categoryName } = useParams();
     const navigate = useNavigate();
@@ -26,28 +28,21 @@ const ShopsByCategory = () => {
     }, [categoryName]);
 
     return (
-        <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 font-sans">
+        <div className="min-h-screen bg-gray-50 pt-24 pb-12 px-4 sm:px-6 lg:px-8 font-sans">
+            <Navbar />
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
-                <div className="flex items-center justify-between mb-12">
-                    <button 
-                        onClick={() => navigate("/")}
-                        className="flex items-center gap-2 text-gray-600 hover:text-indigo-600 font-bold transition-all"
-                    >
-                        <FaArrowLeft /> Back to Home
-                    </button>
-                    <div className="text-right">
-                        <h1 className="text-4xl font-black text-gray-900 tracking-tight">
-                            {categoryName} <span className="text-indigo-600">Shops</span>
-                        </h1>
-                        <p className="text-gray-500 font-medium">Explore the best rental stores for your occasion.</p>
-                    </div>
+                <div className="flex flex-col mb-12">
+                    <h1 className="text-4xl font-black text-gray-900 tracking-tight uppercase">
+                        {categoryName} <span className="text-indigo-600">EventWear</span>
+                    </h1>
+                    <p className="text-gray-500 font-medium mt-2">Explore the best rental stores for your occasion.</p>
                 </div>
 
                 {loading ? (
                     <div className="flex flex-col items-center justify-center h-96">
                         <FaSpinner className="animate-spin text-5xl text-indigo-600 mb-4" />
-                        <p className="text-gray-500 font-bold">Finding best shops for you...</p>
+                        <p className="text-gray-500 font-bold">Finding the best collection for you...</p>
                     </div>
                 ) : shops.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -102,7 +97,10 @@ const ShopsByCategory = () => {
                                         <div className="px-4 py-1.5 bg-green-50 text-green-700 rounded-full text-[10px] font-black uppercase tracking-wider">
                                             Trusted Vendor
                                         </div>
-                                        <button className="text-indigo-600 font-black text-sm hover:underline flex items-center gap-2">
+                                        <button 
+                                            onClick={() => navigate(`/shop/${shop._id}`)}
+                                            className="text-indigo-600 font-black text-sm hover:underline flex items-center gap-2"
+                                        >
                                             View Collection <FaArrowLeft className="rotate-180" />
                                         </button>
                                     </div>
@@ -115,8 +113,8 @@ const ShopsByCategory = () => {
                         <div className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
                             <FaStore className="text-gray-300 text-4xl" />
                         </div>
-                        <h2 className="text-2xl font-black text-gray-900 mb-2">No shops found here yet!</h2>
-                        <p className="text-gray-500 font-medium mb-8">We currently don't have any vendors listed in this category. Check back soon!</p>
+                        <h2 className="text-2xl font-black text-gray-900 mb-2">No stores found here yet!</h2>
+                        <p className="text-gray-500 font-medium mb-8">We currently don't have any vendors listed in this category.</p>
                         <button 
                             onClick={() => navigate("/")}
                             className="bg-indigo-600 text-white px-8 py-4 rounded-2xl font-black shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition"

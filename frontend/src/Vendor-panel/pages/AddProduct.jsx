@@ -4,7 +4,7 @@ import { FaCloudUploadAlt, FaTimes, FaPlus, FaTshirt, FaTag, FaRupeeSign, FaInfo
 import { toast } from "react-hot-toast";
 import axios from "axios";
 
-const AddProduct = ({ onCancel }) => {
+const AddProduct = ({ onCancel, productToEdit }) => {
   const [formData, setFormData] = useState({
     productName: "",
     category: "",
@@ -23,6 +23,25 @@ const AddProduct = ({ onCancel }) => {
   const [sizes, setSizes] = useState([]);
 
   useEffect(() => {
+    if (productToEdit) {
+      setFormData({
+        productName: productToEdit.productName || "",
+        category: productToEdit.category || "",
+        pricePerDay: productToEdit.pricePerDay || "",
+        deposit: productToEdit.deposit || "",
+        description: productToEdit.description || "",
+        size: productToEdit.size || "",
+        color: productToEdit.color || "",
+        material: productToEdit.material || "",
+      });
+      // Handle previews for existing images
+      if (productToEdit.images) {
+        setPreviews(productToEdit.images.map(img => `http://localhost:5000${img}`));
+      }
+    }
+  }, [productToEdit]);
+
+  useEffect(() => {
     const fetchData = async () => {
       try {
         const [catRes, sizeRes] = await Promise.all([
@@ -33,7 +52,6 @@ const AddProduct = ({ onCancel }) => {
         setSizes(sizeRes.data.data);
       } catch (err) {
         console.error("Failed to fetch categories/sizes:", err);
-        // Fallback to defaults or empty if needed
       }
     };
     fetchData();
@@ -60,6 +78,9 @@ const AddProduct = ({ onCancel }) => {
   };
 
   const removeImage = (index) => {
+    // If it's an existing image (string URL), we might need a different logic if we want to delete it from server, 
+    // but for simplicity let's just clear images if they re-upload.
+    // However, the current logic is: if previews.length > images.length, some are existing server images.
     const newImages = images.filter((_, i) => i !== index);
     const newPreviews = previews.filter((_, i) => i !== index);
     setImages(newImages);
@@ -68,59 +89,51 @@ const AddProduct = ({ onCancel }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (images.length === 0) {
+    
+    // In edit mode, images might already be on carrier or user might have uploaded new ones
+    if (previews.length === 0) {
       toast.error("Please upload at least one image");
       return;
     }
 
     const user = JSON.parse(localStorage.getItem("user"));
     if (!user || user.role !== "vendor") {
-      toast.error("You must be logged in as a vendor to add products");
+      toast.error("You must be logged in as a vendor");
       return;
     }
 
     setIsSubmitting(true);
     const data = new FormData();
     
-    // Append text fields
     Object.keys(formData).forEach(key => {
       data.append(key, formData[key]);
     });
     
-    // Append images
     images.forEach(image => {
       data.append("images", image);
     });
 
-    // Append vendor ID
     data.append("vendorId", user.id);
 
     try {
-      const response = await axios.post("http://localhost:5000/api/products", data, {
-        headers: {
-          "Content-Type": "multipart/form-data"
-        }
-      });
+      let response;
+      if (productToEdit) {
+        response = await axios.put(`http://localhost:5000/api/products/${productToEdit._id}`, data, {
+          headers: { "Content-Type": "multipart/form-data" }
+        });
+      } else {
+        response = await axios.post("http://localhost:5000/api/products", data, {
+          headers: { "Content-Type": "multipart/form-data" }
+        });
+      }
 
       if (response.data.success) {
-        toast.success("Product added successfully! Waiting for admin approval.");
-        // Reset form
-        setFormData({
-          productName: "",
-          category: "",
-          pricePerDay: "",
-          deposit: "",
-          description: "",
-          size: "",
-          color: "",
-          material: "",
-        });
-        setImages([]);
-        setPreviews([]);
+        toast.success(productToEdit ? "Product updated successfully!" : "Product added successfully!");
+        if (onCancel) onCancel(); // Go back to list
       }
     } catch (error) {
-      console.error("Error adding product:", error);
-      toast.error(error.response?.data?.message || "Error adding product. Please try again.");
+      console.error("Error saving product:", error);
+      toast.error(error.response?.data?.message || "Error saving product. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -133,9 +146,11 @@ const AddProduct = ({ onCancel }) => {
       transition={{ duration: 0.5 }}
       className="max-w-4xl mx-auto"
     >
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">Add New Product</h1>
-        <p className="text-gray-500 mt-2">List your item for rental and start earning.</p>
+      <div className="mb-8 font-poppins">
+        <h1 className="text-3xl font-black text-gray-900">{productToEdit ? "Edit Product" : "Add New Product"}</h1>
+        <p className="text-gray-500 font-medium mt-2">
+          {productToEdit ? "Update your product details and images." : "List your item for rental and start earning."}
+        </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
@@ -316,7 +331,7 @@ const AddProduct = ({ onCancel }) => {
             disabled={isSubmitting}
             className="flex-1 py-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition transform hover:-translate-y-1 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? "Uploading Product..." : "Submit Product for Approval"}
+            {isSubmitting ? (productToEdit ? "Updating..." : "Uploading...") : (productToEdit ? "Update Product" : "Submit Product for Approval")}
           </button>
           <button
             type="button"

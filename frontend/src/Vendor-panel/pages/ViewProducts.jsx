@@ -10,11 +10,12 @@ import {
   FaRupeeSign,
   FaCheckCircle,
   FaClock,
-  FaTimesCircle
+  FaTimesCircle,
+  FaEdit
 } from "react-icons/fa";
 import { toast } from "react-hot-toast";
 
-const ViewProducts = ({ onAddProduct }) => {
+const ViewProducts = ({ onAddProduct, onEditProduct }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -179,12 +180,22 @@ const ViewProducts = ({ onAddProduct }) => {
                         {getStatusBadge(product.status)}
                       </td>
                       <td className="px-8 py-5 text-right">
-                        <button 
-                          onClick={() => handleDelete(product._id)}
-                          className="p-3 text-red-500 hover:bg-red-50 rounded-xl transition-all shadow-sm opacity-0 group-hover:opacity-100"
-                        >
-                          <FaTrash />
-                        </button>
+                        <div className="flex justify-end gap-2">
+                          <button 
+                            onClick={() => onEditProduct(product)}
+                            className="p-3 text-indigo-500 hover:bg-indigo-50 rounded-xl transition-all shadow-sm opacity-0 group-hover:opacity-100"
+                            title="Edit Product"
+                          >
+                            <FaEdit />
+                          </button>
+                          <button 
+                            onClick={() => handleDelete(product._id)}
+                            className="p-3 text-red-500 hover:bg-red-50 rounded-xl transition-all shadow-sm opacity-0 group-hover:opacity-100"
+                            title="Delete Product"
+                          >
+                            <FaTrash />
+                          </button>
+                        </div>
                       </td>
                     </motion.tr>
                   ))}

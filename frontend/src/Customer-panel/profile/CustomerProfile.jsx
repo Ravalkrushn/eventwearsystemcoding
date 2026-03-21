@@ -14,6 +14,8 @@ import {
 } from "react-icons/fa";
 import { toast } from "react-hot-toast";
 
+import Navbar from "../../components/Navbar";
+
 const CustomerProfile = () => {
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
@@ -50,29 +52,20 @@ const CustomerProfile = () => {
 
   if (!profile) {
     return (
-      <div className="text-center p-12 bg-white rounded-3xl shadow-sm border border-gray-100 mt-20">
-        <p className="text-red-500 font-bold">Error: Could not load profile data.</p>
+      <div className="text-center p-12 bg-white rounded-3xl shadow-sm border border-gray-100 mt-20 font-sans">
+        <p className="text-red-500 font-bold tracking-widest uppercase">Error: Could not load profile data.</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-32 pb-20 px-4">
+    <div className="min-h-screen bg-gray-50 pt-32 pb-20 px-4 font-sans">
+      <Navbar />
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="max-w-4xl mx-auto space-y-8"
       >
-        {/* Back Button */}
-        <button 
-          onClick={() => navigate("/")}
-          className="flex items-center gap-2 text-gray-500 hover:text-indigo-600 font-bold transition-all group"
-        >
-          <div className="p-2 bg-white rounded-xl shadow-sm border border-gray-100 group-hover:bg-indigo-50 transition-colors">
-            <FaArrowLeft />
-          </div>
-          Back to Home
-        </button>
 
         {/* Header Section */}
         <div className="flex flex-col md:flex-row items-center gap-8 bg-white p-8 rounded-3xl shadow-sm border border-gray-100">

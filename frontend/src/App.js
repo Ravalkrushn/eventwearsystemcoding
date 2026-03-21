@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import LandingPage from './Customer-panel/Landing-page/LandingPage';
 import ShopsByCategory from './Customer-panel/Landing-page/category/ShopsByCategory';
+import ShopProducts from './Customer-panel/Landing-page/category/ShopProducts';
+import ProductDetails from './Customer-panel/Landing-page/category/ProductDetails';
 import Login from './loign-regis/Login';
 import Registration from './loign-regis/Registration';
 import VendorDashboard from './Vendor-panel/VendorDashboard';
@@ -21,6 +23,8 @@ function App() {
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/profile" element={<CustomerProfile />} />
         <Route path="/category/:categoryName" element={<ShopsByCategory />} />
+        <Route path="/shop/:vendorId" element={<ShopProducts />} />
+        <Route path="/product/:id" element={<ProductDetails />} />
       </Routes>
     </Router>
   );
