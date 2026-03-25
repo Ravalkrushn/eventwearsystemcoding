@@ -10,7 +10,7 @@ import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-
 
 // Load Stripe with placeholder test key
 const stripePromise = loadStripe("pk_test_51TE98fAzgWGYlU7s23yc2q2JZ48kHRfgFkiDRLzE8pwygcaqV8PSYwmSdhbevWu55LDXB6AsxkoZdxwFRoEUhCCp00jWHrumy3");
-
+//hiiiii
 const StripePaymentForm = ({ order, onPaymentSuccess }) => {
     const stripe = useStripe();
     const [clientSecret, setClientSecret] = useState("");
