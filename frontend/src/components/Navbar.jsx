@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
-import { FaBars, FaTimes, FaUserCircle, FaSignOutAlt } from "react-icons/fa";
+import { FaBars, FaTimes, FaUserCircle, FaSignOutAlt, FaShoppingCart } from "react-icons/fa";
 import { toast } from "react-hot-toast";
 
 const Navbar = () => {
@@ -10,7 +10,19 @@ const Navbar = () => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")) || null);
+    const [cartCount, setCartCount] = useState(0);
     const { scrollY } = useScroll();
+
+    const updateCartCount = () => {
+        const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
+        setCartCount(storedCart.length);
+    };
+
+    useEffect(() => {
+        updateCartCount();
+        window.addEventListener("cartUpdated", updateCartCount);
+        return () => window.removeEventListener("cartUpdated", updateCartCount);
+    }, []);
 
     const handleLogout = () => {
         localStorage.removeItem("user");
@@ -83,8 +95,20 @@ const Navbar = () => {
                         ))}
                     </div>
 
-                    {/* Auth Buttons */}
-                    <div className="hidden md:flex items-center space-x-4">
+                    {/* Auth Buttons & Cart */}
+                    <div className="hidden md:flex items-center space-x-6">
+                        <button 
+                            onClick={() => navigate("/cart")}
+                            className="relative p-2 text-gray-700 hover:text-indigo-600 transition-colors"
+                        >
+                            <FaShoppingCart size={22} />
+                            {cartCount > 0 && (
+                                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full shadow-md">
+                                    {cartCount}
+                                </span>
+                            )}
+                        </button>
+                        <div className="flex items-center space-x-4">
                         {!user ? (
                             <>
                                 <button
@@ -122,10 +146,22 @@ const Navbar = () => {
                                 </button>
                             </div>
                         )}
+                        </div>
                     </div>
 
                     {/* Mobile Toggle */}
-                    <div className="md:hidden">
+                    <div className="md:hidden flex items-center gap-4">
+                        <button 
+                            onClick={() => navigate("/cart")}
+                            className="relative p-2 text-gray-700"
+                        >
+                            <FaShoppingCart size={22} />
+                            {cartCount > 0 && (
+                                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full shadow-md">
+                                    {cartCount}
+                                </span>
+                            )}
+                        </button>
                         <button
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                             className="text-gray-700 p-2"

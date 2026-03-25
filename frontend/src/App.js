@@ -10,6 +10,10 @@ import Registration from './loign-regis/Registration';
 import VendorDashboard from './Vendor-panel/VendorDashboard';
 import AdminDashboard from './Admin-panel/AdminDashboard';
 import CustomerProfile from './Customer-panel/profile/CustomerProfile';
+import Cart from './Customer-panel/cart/Cart';
+import Delivery from './Customer-panel/cart/Delivery';
+import Payment from './Customer-panel/cart/Payment';
+
 
 function App() {
   return (
@@ -25,6 +29,9 @@ function App() {
         <Route path="/category/:categoryName" element={<ShopsByCategory />} />
         <Route path="/shop/:vendorId" element={<ShopProducts />} />
         <Route path="/product/:id" element={<ProductDetails />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/delivery" element={<Delivery />} />
+        <Route path="/payment" element={<Payment />} />
       </Routes>
     </Router>
   );
