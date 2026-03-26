@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
-import { FaBars, FaTimes, FaUserCircle, FaSignOutAlt, FaShoppingCart } from "react-icons/fa";
+import { FaBars, FaTimes, FaUserCircle, FaSignOutAlt, FaShoppingCart, FaTruck } from "react-icons/fa";
+import Swal from "sweetalert2";
 import { toast } from "react-hot-toast";
 
 const Navbar = () => {
@@ -24,12 +25,33 @@ const Navbar = () => {
         return () => window.removeEventListener("cartUpdated", updateCartCount);
     }, []);
 
-    const handleLogout = () => {
-        localStorage.removeItem("user");
-        localStorage.removeItem("token");
-        setUser(null);
-        toast.success("Logged out successfully");
-        navigate("/");
+    const handleLogout = async () => {
+        const result = await Swal.fire({
+            title: "Are you sure?",
+            text: "You will be logged out of your session.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#4F46E5",
+            cancelButtonColor: "#EF4444",
+            confirmButtonText: "Yes, Logout",
+            cancelButtonText: "No, stay"
+        });
+
+        if (result.isConfirmed) {
+            localStorage.removeItem("user");
+            localStorage.removeItem("token");
+            setUser(null);
+            
+            await Swal.fire({
+                title: "Logged Out!",
+                text: "See you again soon.",
+                icon: "success",
+                timer: 1500,
+                showConfirmButton: false
+            });
+            
+            navigate("/");
+        }
     };
 
     useMotionValueEvent(scrollY, "change", (latest) => {
@@ -97,17 +119,33 @@ const Navbar = () => {
 
                     {/* Auth Buttons & Cart */}
                     <div className="hidden md:flex items-center space-x-6">
-                        <button 
-                            onClick={() => navigate("/cart")}
-                            className="relative p-2 text-gray-700 hover:text-indigo-600 transition-colors"
-                        >
-                            <FaShoppingCart size={22} />
-                            {cartCount > 0 && (
-                                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full shadow-md">
-                                    {cartCount}
-                                </span>
+                        <div className="flex items-center gap-4">
+                            {/* Orders Button (Truck Icon) */}
+                            {user && user.role !== 'vendor' && user.role !== 'admin' && (
+                                <button 
+                                    onClick={() => navigate("/my-orders")}
+                                    className="relative p-2 text-gray-700 hover:text-indigo-600 transition-colors flex items-center gap-2 group"
+                                    title="Track My Rentals"
+                                >
+                                    <FaTruck size={22} className="group-hover:scale-110 transition-transform" />
+                                    <span className="text-[9px] font-black uppercase tracking-widest hidden lg:block">My Rentals</span>
+                                </button>
                             )}
-                        </button>
+
+                            {/* Cart Button */}
+                            <button 
+                                onClick={() => navigate("/cart")}
+                                className="relative p-2 text-gray-700 hover:text-indigo-600 transition-colors"
+                                title="My Cart"
+                            >
+                                <FaShoppingCart size={22} />
+                                {cartCount > 0 && (
+                                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full shadow-md">
+                                        {cartCount}
+                                    </span>
+                                )}
+                            </button>
+                        </div>
                         <div className="flex items-center space-x-4">
                         {!user ? (
                             <>
@@ -207,6 +245,15 @@ const Navbar = () => {
                             </>
                         ) : (
                             <>
+                                <button
+                                    onClick={() => {
+                                        setIsMobileMenuOpen(false);
+                                        navigate("/my-orders");
+                                    }}
+                                    className="w-full text-center py-2 text-gray-700 font-bold flex items-center justify-center gap-2"
+                                >
+                                    <FaTruck /> My Rentals
+                                </button>
                                 <button
                                     onClick={() => {
                                         setIsMobileMenuOpen(false);

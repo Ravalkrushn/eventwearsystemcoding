@@ -13,12 +13,27 @@ const orderSchema = new mongoose.Schema({
         ref: 'Product',
         required: true
       },
+      vendor: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Vendor',
+        required: true
+      },
       name: String,
       price: Number,
       duration: Number,
       deliveryDate: String,
       returnDate: String,
-      image: String
+      image: String,
+      deliveryBoy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'DeliveryBoy',
+        default: null
+      },
+      deliveryStatus: {
+        type: String,
+        enum: ['Pending', 'Assigned', 'Picked Up', 'Out for Delivery', 'Delivered', 'Returned'],
+        default: 'Pending'
+      }
     }
   ],
   totalAmount: {

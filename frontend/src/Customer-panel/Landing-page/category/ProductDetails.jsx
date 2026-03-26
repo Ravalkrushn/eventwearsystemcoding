@@ -219,6 +219,7 @@ const ProductDetails = () => {
             id: product._id || Date.now().toString(),
             name: product.productName,
             vendorName: product.vendor?.shopName,
+            vendor: product.vendor?._id,
             image: product.images[0],
             description: product.description,
             code: product.category,

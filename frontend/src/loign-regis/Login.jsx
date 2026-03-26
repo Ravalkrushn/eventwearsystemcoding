@@ -45,6 +45,8 @@ const Login = () => {
           navigate("/vendor-dashboard");
         } else if (response.data.user.role === 'admin') {
           navigate("/admin-dashboard");
+        } else if (response.data.user.role === 'delivery') {
+          navigate("/delivery-dashboard");
         } else {
           navigate("/");
         }

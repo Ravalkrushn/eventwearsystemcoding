@@ -1,7 +1,40 @@
 const Vendor = require('../models/Vendor');
 const Product = require('../models/Product');
+const Order = require('../models/Order');
 const path = require('path');
 const fs = require('fs');
+
+// @desc    Get orders for a specific vendor
+// @route   GET /api/vendors/orders/:id
+// @access  Public (in real app, should be protected)
+exports.getVendorOrders = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    
+    // Find orders where at least one item is from this vendor
+    const orders = await Order.find({ 
+        'items.vendor': id
+    })
+        .populate('user', 'fullName email phone')
+        .populate('items.deliveryBoy', 'name phone email')
+        .sort({ createdAt: -1 });
+
+    // Filter items in each order to only include items belonging to this vendor
+    const vendorOrders = orders.map(order => {
+        const orderObj = order.toObject();
+        orderObj.items = orderObj.items.filter(item => item.vendor.toString() === id);
+        return orderObj;
+    });
+
+    res.status(200).json({
+      success: true,
+      count: vendorOrders.length,
+      data: vendorOrders
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 // @desc    Get all active vendors
 // @route   GET /api/vendors

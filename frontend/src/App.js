@@ -13,6 +13,8 @@ import CustomerProfile from './Customer-panel/profile/CustomerProfile';
 import Cart from './Customer-panel/cart/Cart';
 import Delivery from './Customer-panel/cart/Delivery';
 import Payment from './Customer-panel/cart/Payment';
+import MyOrders from './Customer-panel/cart/MyOrders';
+import DeliveryDashboard from './Delivery-panel/DeliveryDashboard';
 
 
 function App() {
@@ -32,6 +34,8 @@ function App() {
         <Route path="/cart" element={<Cart />} />
         <Route path="/delivery" element={<Delivery />} />
         <Route path="/payment" element={<Payment />} />
+        <Route path="/my-orders" element={<MyOrders />} />
+        <Route path="/delivery-dashboard" element={<DeliveryDashboard />} />
       </Routes>
     </Router>
   );

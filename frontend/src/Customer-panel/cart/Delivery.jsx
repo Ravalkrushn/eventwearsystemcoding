@@ -66,13 +66,15 @@ const Delivery = () => {
         setLoading(true);
 
         try {
-            const userId = JSON.parse(localStorage.getItem('user') || '{}')._id;
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const userId = user.id || user._id; // Robust ID check
             const totalAmount = cartItems.reduce((acc, item) => acc + (item.price || 0), 0);
 
             const orderData = {
-                user: userId || null, // Guest checkout support if no user ID
+                user: userId || null, // Tied to logged in user if available
                 items: cartItems.map(item => ({
                     product: item.id || item._id, // Ensure we have the product ID
+                    vendor: item.vendor, // Include the vendor ID
                     name: item.name,
                     price: item.price,
                     duration: parseInt(item.duration),

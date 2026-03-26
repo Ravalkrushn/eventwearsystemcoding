@@ -9,8 +9,7 @@ import {
   FaMapMarkerAlt, 
   FaSpinner,
   FaCalendarAlt,
-  FaUserCircle,
-  FaArrowLeft
+  FaUserCircle
 } from "react-icons/fa";
 import { toast } from "react-hot-toast";
 
@@ -52,7 +51,7 @@ const CustomerProfile = () => {
 
   if (!profile) {
     return (
-      <div className="text-center p-12 bg-white rounded-3xl shadow-sm border border-gray-100 mt-20 font-sans">
+      <div className="text-center p-12 bg-white rounded-3xl shadow-sm border border-gray-100 mt-20 font-sans mx-auto max-w-lg">
         <p className="text-red-500 font-bold tracking-widest uppercase">Error: Could not load profile data.</p>
       </div>
     );

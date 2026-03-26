@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaTimes, FaWhatsapp, FaCheckCircle, FaShieldAlt, FaTruck, FaClock, FaExclamationTriangle } from "react-icons/fa";
+import { 
+    FaTimes, 
+    FaWhatsapp, 
+    FaCheckCircle, 
+    FaShieldAlt, 
+    FaTruck, 
+    FaClock, 
+    FaExclamationTriangle 
+} from "react-icons/fa";
 import Navbar from "../../components/Navbar";
 
 const Cart = () => {
@@ -74,10 +82,11 @@ const Cart = () => {
             <div className="min-h-screen bg-white flex flex-col font-sans">
                 <Navbar />
                 <div className="flex-1 flex flex-col items-center justify-center pt-24">
-                    <h2 className="text-2xl font-black text-gray-900 mb-4 uppercase">Your Cart is Empty</h2>
+                    <h2 className="text-2xl font-black text-gray-900 mb-4 uppercase tracking-tighter">Your Cart is Empty</h2>
+                    <p className="text-gray-400 text-xs font-bold uppercase tracking-widest mb-8">No items in your cart yet.</p>
                     <button
                         onClick={() => navigate("/")}
-                        className="px-8 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition"
+                        className="px-8 py-3 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:bg-indigo-700 transition"
                     >
                         Go Shopping
                     </button>
@@ -106,9 +115,9 @@ const Cart = () => {
                 <div className="flex items-center text-xl font-black gap-2 md:gap-4 tracking-wide">
                     <span className="text-[#e20000]">Cart</span>
                     <span className="w-12 md:w-24 h-[1px] bg-gray-800"></span>
-                    <span className="text-gray-800">Delivery</span>
-                    <span className="w-12 md:w-24 h-[1px] bg-gray-800"></span>
-                    <span className="text-gray-800">Payment</span>
+                    <span className="text-gray-800 uppercase text-sm tracking-widest opacity-30">Delivery</span>
+                    <span className="w-12 md:w-24 h-[1px] bg-gray-200"></span>
+                    <span className="text-gray-800 uppercase text-sm tracking-widest opacity-30">Payment</span>
                 </div>
             </div>
 
@@ -127,7 +136,6 @@ const Cart = () => {
                         <div className="flex flex-col border-b border-gray-100">
                             {cartItems.map((item) => (
                                 <div key={item.id} className="flex flex-col md:flex-row gap-6 p-6 border-b border-gray-100/50 last:border-0 relative">
-                                    {/* Product Image */}
                                     <div className="w-40 h-[220px] shrink-0 bg-gray-100 overflow-hidden shadow-sm rounded-2xl">
                                         <img
                                             src={item.image ? `http://localhost:5000${item.image}` : "https://via.placeholder.com/300x400"}
@@ -136,7 +144,6 @@ const Cart = () => {
                                         />
                                     </div>
 
-                                    {/* Product Details */}
                                     <div className="flex-1 flex flex-col justify-between">
                                         <div className="space-y-3 relative">
                                             <h3 className="text-base font-medium text-gray-800 uppercase tracking-wide">
@@ -158,7 +165,6 @@ const Cart = () => {
                                             </p>
                                         </div>
 
-                                        {/* Dynamic Dates / Grid */}
                                         <div className="grid grid-cols-4 gap-6 pt-6">
                                             <div>
                                                 <p className="text-xs text-gray-400 capitalize mb-1">Delivery date</p>
@@ -223,8 +229,6 @@ const Cart = () => {
                             </h3>
 
                             <div className="space-y-6 flex-1 text-sm text-gray-800">
-                                
-                                {/* Rent Amount */}
                                 {cartItems.map((cartItem, idx) => {
                                     const itemDuration = parseInt(cartItem.duration) || 3;
                                     const itemTotal = cartItem.price || 0;
@@ -234,30 +238,24 @@ const Cart = () => {
                                         <div key={idx} className="flex justify-between items-start font-medium border-b border-gray-100 pb-6">
                                             <div className="flex flex-col">
                                                 <span className="font-bold">{cartItem.name || "Item"}</span>
-                                                <span className="text-xs text-gray-400 font-bold italic tracking-tighter mt-1">{itemDuration} Days × Rs. {itemPerDay} / day</span>
+                                                <span className="text-xs text-gray-400 font-bold italic tracking-tighter mt-1">{itemDuration} Days × Rs. {itemPerDay.toFixed(0)} / day</span>
                                             </div>
                                             <span className="font-black text-indigo-600">Rs. {itemTotal}/-</span>
                                         </div>
                                     );
                                 })}
 
-                                {/* Total */}
                                 <div className="flex justify-between items-start pt-2 font-black text-gray-900 text-lg uppercase">
                                     <span>To Pay</span>
                                     <span>Rs. {totalAmount} /-</span>
                                 </div>
                             </div>
 
-                            {/* Buttons */}
                             <div className="mt-8 space-y-4">
                                 <button className="w-full h-14 bg-white border border-gray-200 text-[#e20000] text-[10px] font-black tracking-widest uppercase rounded-2xl hover:bg-gray-50 transition overflow-hidden relative flex items-center">
                                     <motion.div
                                         animate={{ x: ["0%", "-50%"] }}
-                                        transition={{ 
-                                            repeat: Infinity, 
-                                            duration: 6, 
-                                            ease: "linear" 
-                                        }}
+                                        transition={{ repeat: Infinity, duration: 6, ease: "linear" }}
                                         className="whitespace-nowrap flex shrink-0"
                                     >
                                         <span className="flex-none w-[400px] text-center px-4">READ Store Policies</span>

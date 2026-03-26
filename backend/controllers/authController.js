@@ -1,6 +1,7 @@
 const Customer = require('../models/Customer');
 const Vendor = require('../models/Vendor');
 const Admin = require('../models/Admin');
+const DeliveryBoy = require('../models/DeliveryBoy');
 const jwt = require('jsonwebtoken');
 const sendEmail = require('../utils/sendEmail');
 
@@ -45,14 +46,16 @@ exports.register = async (req, res, next) => {
     if (role === 'customer') Model = Customer;
     else if (role === 'vendor') Model = Vendor;
     else if (role === 'admin') Model = Admin;
+    else if (role === 'delivery') Model = DeliveryBoy;
     else return res.status(400).json({ success: false, message: 'Invalid role' });
 
     // Check if user exists in ANY model (Global Uniqueness)
     const adminExists = await Admin.findOne({ email });
     const vendorExists = await Vendor.findOne({ email });
     const customerExists = await Customer.findOne({ email });
+    const deliveryExists = await DeliveryBoy.findOne({ email });
 
-    if (adminExists || vendorExists || customerExists) {
+    if (adminExists || vendorExists || customerExists || deliveryExists) {
       return res.status(400).json({ success: false, message: 'This email is already registered. Please use a different one.' });
     }
 
@@ -165,6 +168,8 @@ exports.login = async (req, res, next) => {
         user = await Vendor.findOne({ email }).select('+password');
       } else if (role === 'customer') {
         user = await Customer.findOne({ email }).select('+password');
+      } else if (role === 'delivery') {
+        user = await DeliveryBoy.findOne({ email }).select('+password');
       } else {
         return res.status(400).json({ success: false, message: 'Invalid role provided' });
       }
@@ -182,6 +187,11 @@ exports.login = async (req, res, next) => {
       // Check Customer if still not found
       if (!user) {
         user = await Customer.findOne({ email }).select('+password');
+      }
+
+      // Check Delivery if still not found
+      if (!user) {
+        user = await DeliveryBoy.findOne({ email }).select('+password');
       }
     }
 

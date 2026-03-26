@@ -36,6 +36,7 @@ app.use('/api/vendors', require('./routes/vendorRoutes'));
 app.use('/api/customer', require('./routes/customerRoutes'));
 app.use('/api/orders', require('./routes/orderRoutes'));
 app.use('/api/payment', require('./routes/paymentRoutes'));
+app.use('/api/delivery-boys', require('./routes/deliveryBoyRoutes'));
 
 // Home route
 app.get('/', (req, res) => {

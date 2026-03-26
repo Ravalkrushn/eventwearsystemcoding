@@ -13,7 +13,8 @@ import {
   FaBars, 
   FaSignOutAlt,
   FaCog,
-  FaShieldAlt
+  FaShieldAlt,
+  FaUserTie
 } from "react-icons/fa";
 import { 
   LineChart, 
@@ -25,10 +26,16 @@ import {
   ResponsiveContainer 
 } from "recharts";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import AddProduct from "./pages/AddProduct";
 import VendorProfile from "./pages/VendorProfile";
 import ViewProducts from "./pages/ViewProducts";
 import ManagePolicies from "./pages/ManagePolicies";
+import VendorOrders from "./pages/VendorOrders";
+import ManageStaff from "./pages/ManageStaff";
+import AddDeliveryBoy from "./pages/AddDeliveryBoy";
+import ActiveRentals from "./pages/ActiveRentals";
+import EarningsView from "./pages/EarningsView";
 
 const VendorDashboard = () => {
   const navigate = useNavigate();
@@ -46,16 +53,16 @@ const VendorDashboard = () => {
       .toUpperCase();
   };
 
-  // Mock Data
+  // Mock Data (In a real app, these should be fetched via APIs)
   const stats = [
     { title: "Total Products", value: "124", icon: <FaBox />, color: "from-blue-500 to-blue-600" },
     { title: "Approved", value: "98", icon: <FaCheckCircle />, color: "from-green-500 to-green-600" },
-    { title: "Pending", value: "26", icon: <FaClock />, color: "from-yellow-500 to-yellow-600" },
+    { title: "New Orders", value: "3", icon: <FaClock />, color: "from-yellow-500 to-yellow-600" },
     { title: "Total Earnings", value: "₹45,200", icon: <FaMoneyBillWave />, color: "from-purple-500 to-purple-600" },
   ];
 
   const recentProducts = [
-    { id: 1, name: "Velvet Sherwani", category: "Wedding", price: "₹2,500/day", status: "Approved", img: "https://randomuser.me/api/portraits/men/1.jpg" }, // Using placeholder
+    { id: 1, name: "Velvet Sherwani", category: "Wedding", price: "₹2,500/day", status: "Approved", img: "https://randomuser.me/api/portraits/men/1.jpg" }, 
     { id: 2, name: "Floral Lehenga", category: "Wedding", price: "₹3,000/day", status: "Pending", img: "https://randomuser.me/api/portraits/women/2.jpg" },
     { id: 3, name: "Tuxedo Suit", category: "Party", price: "₹1,500/day", status: "Approved", img: "https://randomuser.me/api/portraits/men/3.jpg" },
     { id: 4, name: "Silk Saree", category: "Festival", price: "₹900/day", status: "Rejected", img: "https://randomuser.me/api/portraits/women/4.jpg" },
@@ -105,11 +112,12 @@ const VendorDashboard = () => {
             { id: "dashboard", name: "Dashboard", icon: <FaBox /> },
             { id: "view-products", name: "View Products", icon: <FaList /> },
             { id: "products", name: "Add Product", icon: <FaPlus /> },
-            { id: "orders", name: "Orders", icon: <FaCheckCircle /> },
+            { id: "orders", name: "New Orders", icon: <FaCheckCircle /> },
+            { id: "active-rentals", name: "Active Rentals", icon: <FaClock /> },
+            { id: "staff", name: "Delivery Staff", icon: <FaUserTie /> },
             { id: "earnings", name: "Earnings", icon: <FaMoneyBillWave /> },
             { id: "profile", name: "Profile", icon: <FaUser /> },
             { id: "policies", name: "Store Policies", icon: <FaShieldAlt /> },
-            { id: "settings", name: "Settings", icon: <FaCog /> },
           ].map((item) => (
             <button 
               key={item.id}
@@ -127,9 +135,21 @@ const VendorDashboard = () => {
 
         <div className="p-4 border-t border-gray-800">
           <button 
-            onClick={() => {
-              localStorage.clear();
-              navigate('/login');
+            onClick={async () => {
+              const result = await Swal.fire({
+                title: 'Logout?',
+                text: "Are you sure you want to leave the vendor panel?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#4f46e5',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, logout!'
+              });
+
+              if (result.isConfirmed) {
+                localStorage.clear();
+                window.location.href = '/login';
+              }
             }} 
             className="flex items-center w-full p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
           >
@@ -192,7 +212,10 @@ const VendorDashboard = () => {
                   >
                     <FaPlus className="mr-2" /> Add Product
                   </button>
-                  <button className="flex items-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
+                  <button 
+                    onClick={() => setCurrentView("orders")}
+                    className="flex items-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
+                  >
                     View Orders
                   </button>
                 </div>
@@ -306,7 +329,12 @@ const VendorDashboard = () => {
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-lg font-bold text-gray-800">Pending Orders</h2>
-                  <button className="text-sm text-indigo-600 hover:text-indigo-800 font-medium">View All Orders</button>
+                  <button 
+                    onClick={() => setCurrentView("orders")}
+                    className="text-sm text-indigo-600 hover:text-indigo-800 font-medium"
+                  >
+                    View All Orders
+                  </button>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {pendingOrders.map((order) => (
@@ -355,11 +383,24 @@ const VendorDashboard = () => {
             <VendorProfile />
           ) : currentView === "policies" ? (
             <ManagePolicies />
-          ) : (
-            <div className="flex items-center justify-center h-full text-gray-500 italic">
-              View for "{currentView}" is under development.
-            </div>
-          )}
+          ) : currentView === "orders" ? (
+            <VendorOrders />
+          ) : currentView === "staff" ? (
+            <ManageStaff onAddStaff={() => setCurrentView("add-staff")} />
+          ) : currentView === "add-staff" ? (
+            <AddDeliveryBoy
+                onCancel={() => setCurrentView("staff")}
+                onSuccess={() => setCurrentView("staff")}
+            />
+          ) : currentView === "active-rentals" ? (
+            <ActiveRentals />
+          ) : currentView === "earnings" ? (
+            <EarningsView />
+          ) : currentView === "profile" ? (
+            <VendorProfile />
+          ) : currentView === "policies" ? (
+            <ManagePolicies />
+          ) : null}
         </main>
       </div>
     </div>

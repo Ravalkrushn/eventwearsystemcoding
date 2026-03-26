@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Order = require('../models/Order');
+const DeliveryBoy = require('../models/DeliveryBoy');
 
 // @route   POST /api/orders
 // @desc    Create a new order & save delivery details
@@ -81,6 +82,98 @@ router.put('/:id/payment', async (req, res) => {
     res.json({ success: true, order: updatedOrder });
   } catch (err) {
     console.error('❌ Error updating payment:', err);
+    res.status(500).json({ success: false, message: 'Server Error: ' + err.message });
+  }
+});
+
+// @route   PUT /api/orders/:id/assign-delivery
+// @desc    Assign delivery boy for items belonging to a specific vendor
+// @access  Private (Vendor)
+router.put('/:id/assign-delivery', async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { vendorId, deliveryBoyId } = req.body;
+
+    if (!vendorId || !deliveryBoyId) {
+      return res.status(400).json({ success: false, message: 'VendorId and DeliveryBoyId are required' });
+    }
+
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    // Check if the delivery boy exists and belongs to this vendor
+    const deliveryBoy = await DeliveryBoy.findById(deliveryBoyId);
+    if (!deliveryBoy) {
+      return res.status(404).json({ success: false, message: 'Delivery staff not found' });
+    }
+
+    // Update only items that belong to THIS vendor
+    let updatedCount = 0;
+    order.items.forEach(item => {
+      if (item.vendor.toString() === vendorId) {
+        item.deliveryBoy = deliveryBoyId;
+        item.deliveryStatus = 'Assigned';
+        updatedCount++;
+      }
+    });
+
+    if (updatedCount === 0) {
+      return res.status(400).json({ success: false, message: 'No items from this vendor found in this order' });
+    }
+
+    // Optional: Update global order status if it was 'Order Placed'
+    if (order.orderStatus === 'Order Placed') {
+      order.orderStatus = 'Processing';
+    }
+
+    await order.save();
+    
+    // Populate delivery boy details for the response
+    const updatedOrder = await Order.findById(order._id)
+      .populate('items.deliveryBoy', 'name phone email');
+
+    res.json({ 
+      success: true, 
+      message: `Staff assigned successfully to ${updatedCount} items`,
+      order: updatedOrder 
+    });
+  } catch (err) {
+    console.error('❌ Error assigning delivery staff:', err);
+    res.status(500).json({ success: false, message: 'Server Error: ' + err.message });
+  }
+});
+
+// @route   GET /api/orders/user/:userId
+// @desc    Get all orders for a specific user (by ID or Email)
+router.get('/user/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    // First, find the user's email to ensure we catch guest orders that might have been placed with same email
+    const Customer = require('../models/Customer');
+    const user = await Customer.findById(userId);
+    const userEmail = user ? user.email : null;
+
+    const query = {
+        $or: [
+            { user: userId },
+            { "shippingAddress.email": userEmail }
+        ]
+    };
+
+    const orders = await Order.find(userEmail ? query : { user: userId })
+      .sort({ createdAt: -1 })
+      .populate('items.vendor', 'shopName shopAddress phone')
+      .populate('items.deliveryBoy', 'name phone');
+      
+    res.json({ 
+      success: true, 
+      data: orders 
+    });
+  } catch (err) {
+    console.error('❌ Error fetching user orders:', err);
     res.status(500).json({ success: false, message: 'Server Error: ' + err.message });
   }
 });

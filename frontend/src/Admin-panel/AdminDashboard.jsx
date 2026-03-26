@@ -19,6 +19,7 @@ import VendorManager from "./components/VendorManager";
 import CategoryManager from "./components/CategoryManager";
 import SizeManager from "./components/SizeManager";
 import { FaTags, FaRulerCombined } from "react-icons/fa";
+import Swal from "sweetalert2";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -78,7 +79,23 @@ const AdminDashboard = () => {
 
         <div className="p-6 border-t border-gray-800">
           <button
-            onClick={() => navigate("/login")}
+            onClick={async () => {
+                const result = await Swal.fire({
+                    title: 'Exit Admin Hub?',
+                    text: "Your session will be securely terminated.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#4f46e5',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, Exit'
+                });
+
+                if (result.isConfirmed) {
+                    localStorage.removeItem("user");
+                    localStorage.removeItem("token");
+                    window.location.href = '/login';
+                }
+            }}
             className="flex items-center w-full p-3 text-red-400 hover:text-white hover:bg-red-500/10 rounded-xl transition-all group"
           >
             <FaSignOutAlt className="group-hover:translate-x-1 transition-transform" />
