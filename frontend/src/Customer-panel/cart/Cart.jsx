@@ -11,6 +11,7 @@ import {
     FaExclamationTriangle 
 } from "react-icons/fa";
 import Navbar from "../../components/Navbar";
+import Swal from "sweetalert2";
 
 const Cart = () => {
     const navigate = useNavigate();
@@ -74,6 +75,23 @@ const Cart = () => {
     };
 
     const handlePlaceOrder = () => {
+        const user = localStorage.getItem("user");
+        if (!user) {
+            Swal.fire({
+                icon: "warning",
+                title: "Login Required",
+                text: "Please login to place your order.",
+                confirmButtonColor: "#4F46E5",
+                showCancelButton: true,
+                confirmButtonText: "Login Now",
+                cancelButtonText: "Continue as Guest"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    navigate("/login");
+                }
+            });
+            return;
+        }
         navigate("/delivery");
     };
 
@@ -128,96 +146,115 @@ const Cart = () => {
                     <div className="flex-1 flex flex-col">
                         
                         {/* Header */}
-                        <div className="text-center font-black text-xs uppercase tracking-widest py-4 bg-gray-50 border-b border-gray-100 text-gray-400">
-                            {cartItems.length} Items In Your Cart
-                        </div>
+                        <div className="flex flex-col border-b border-gray-100 divide-y divide-gray-100">
+                            {Array.from(new Map(cartItems.map(item => [item.vendor, item])).values()).map((vendor, vIdx) => {
+                                const vendorItems = cartItems.filter(ci => ci.vendor === vendor.vendor);
+                                return (
+                                    <div key={vendor.vendor || vIdx} className="bg-white">
+                                        {/* Vendor Header */}
+                                        <div className="px-6 py-4 bg-gray-50/50 flex items-center justify-between border-b border-gray-100">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 bg-indigo-600/10 text-indigo-600 rounded-lg"><FaShieldAlt size={14} /></div>
+                                                <h3 className="text-xs font-black uppercase tracking-widest text-gray-900 border-l-2 border-indigo-600 pl-3">
+                                                    {vendor.vendorName || "STORE"}
+                                                </h3>
+                                            </div>
+                                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
+                                                {vendorItems.length} {vendorItems.length === 1 ? 'Item' : 'Items'}
+                                            </span>
+                                        </div>
 
-                        {/* Cart Items */}
-                        <div className="flex flex-col border-b border-gray-100">
-                            {cartItems.map((item) => (
-                                <div key={item.id} className="flex flex-col md:flex-row gap-6 p-6 border-b border-gray-100/50 last:border-0 relative">
-                                    <div className="w-40 h-[220px] shrink-0 bg-gray-100 overflow-hidden shadow-sm rounded-2xl">
-                                        <img
-                                            src={item.image ? `http://localhost:5000${item.image}` : "https://via.placeholder.com/300x400"}
-                                            alt={item.name}
-                                            className="w-full h-full object-cover"
-                                        />
+                                        {/* Items for this Vendor */}
+                                        <div className="divide-y divide-gray-50">
+                                            {vendorItems.map((item) => (
+                                                <div key={item.id} className="flex flex-col md:flex-row gap-6 p-6 relative group bg-white">
+                                                    <div className="w-40 h-[220px] shrink-0 bg-gray-100 overflow-hidden shadow-sm rounded-2xl">
+                                                        <img
+                                                            src={item.image ? `http://localhost:5000${item.image}` : "https://via.placeholder.com/300x400"}
+                                                            alt={item.name}
+                                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                                        />
+                                                    </div>
+
+                                                    <div className="flex-1 flex flex-col justify-between">
+                                                        <div className="space-y-3 relative">
+                                                            <h3 className="text-base font-medium text-gray-800 uppercase tracking-wide">
+                                                                {item.name || "PRODUCT NAME"}
+                                                            </h3>
+                                                            
+                                                            <button
+                                                                onClick={() => removeFromCart(item.id)}
+                                                                className="absolute -top-1 -right-2 w-8 h-8 bg-white border border-gray-100 text-gray-400 rounded-full flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-all shadow-sm"
+                                                            >
+                                                                <FaTimes size={14} />
+                                                            </button>
+
+                                                            <p className="text-gray-500 text-sm leading-relaxed pr-8">
+                                                                {item.description || "Rent this stunning piece of fashion."}
+                                                            </p>
+                                                            <div className="flex items-center gap-4">
+                                                                <span className="px-3 py-1 bg-gray-100 rounded-lg font-bold text-gray-500 uppercase tracking-widest text-[10px]">
+                                                                    {item.code || "ITEM-CODE"}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="grid grid-cols-4 gap-6 pt-6 mt-4 border-t border-gray-50">
+                                                            <div>
+                                                                <p className="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-1">Delivery</p>
+                                                                <p className="font-bold text-gray-800 text-sm">{item.deliveryDate || "-"}</p>
+                                                            </div>
+                                                            <div>
+                                                                <p className="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-1">Return</p>
+                                                                <p className="font-bold text-gray-800 text-sm">{item.returnDate || "-"}</p>
+                                                            </div>
+                                                            <div>
+                                                                <p className="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-1">Duration</p>
+                                                                <p className="font-bold text-gray-800 text-sm">{parseInt(item.duration) || "3"} Days</p>
+                                                            </div>
+                                                            <div>
+                                                                <p className="text-[10px] text-indigo-400 uppercase font-black tracking-widest mb-1">Total</p>
+                                                                <p className="font-black text-indigo-600 text-sm">Rs. {item.price || 0} /-</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {/* Policies for this Vendor */}
+                                        <div className="p-6 bg-gray-50/30 border-t border-gray-50">
+                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                                {[
+                                                    { type: 'Custom Fitting', icon: <FaCheckCircle />, label: 'Custom Fitting' },
+                                                    { type: 'Security Deposit', icon: <FaShieldAlt />, label: 'Security Deposit' },
+                                                    { type: 'Return', icon: <FaTruck />, label: 'Return Policy' },
+                                                    { type: 'Cancellation', icon: <FaClock />, label: 'Cancellation' }
+                                                ].map((p) => {
+                                                    const policy = vendor.policies?.find(pol => pol.type === p.type);
+                                                    if (!policy) return null;
+                                                    return (
+                                                        <motion.button
+                                                            key={p.type}
+                                                            whileHover={{ scale: 1.02, y: -2 }}
+                                                            whileTap={{ scale: 0.98 }}
+                                                            onClick={() => setSelectedPolicy(policy)}
+                                                            className="flex items-center gap-3 p-3 bg-white border border-gray-100 rounded-xl shadow-sm hover:border-indigo-200 transition-all text-left"
+                                                        >
+                                                            <div className="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center text-xs">
+                                                                {p.icon}
+                                                            </div>
+                                                            <p className="text-[9px] font-black text-gray-500 uppercase tracking-tight">{p.label}</p>
+                                                        </motion.button>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
                                     </div>
-
-                                    <div className="flex-1 flex flex-col justify-between">
-                                        <div className="space-y-3 relative">
-                                            <h3 className="text-base font-medium text-gray-800 uppercase tracking-wide">
-                                                {item.vendorName || "VENDOR / BRAND"}
-                                            </h3>
-                                            
-                                            <button
-                                                onClick={() => removeFromCart(item.id)}
-                                                className="absolute -top-1 -right-2 w-7 h-7 bg-gray-800 text-white rounded-full flex items-center justify-center hover:bg-black transition-colors"
-                                            >
-                                                <FaTimes size={12} />
-                                            </button>
-
-                                            <p className="text-gray-500 text-sm leading-relaxed pr-8">
-                                                {item.description || "Rent this stunning piece of fashion."}
-                                            </p>
-                                            <p className="font-bold text-gray-700 uppercase tracking-widest text-sm">
-                                                {item.code || "ITEM-CODE"}
-                                            </p>
-                                        </div>
-
-                                        <div className="grid grid-cols-4 gap-6 pt-6">
-                                            <div>
-                                                <p className="text-xs text-gray-400 capitalize mb-1">Delivery date</p>
-                                                <p className="font-semibold text-gray-800 text-sm">{item.deliveryDate || "-"}</p>
-                                            </div>
-                                            <div>
-                                                <p className="text-xs text-gray-400 capitalize mb-1">Pickup date</p>
-                                                <p className="font-semibold text-gray-800 text-sm">{item.returnDate || "-"}</p>
-                                            </div>
-                                            <div>
-                                                <p className="text-xs text-gray-400 capitalize mb-1">Duration</p>
-                                                <p className="font-semibold text-gray-800 text-sm">{parseInt(item.duration) || "3"}</p>
-                                            </div>
-                                            <div>
-                                                <p className="text-xs text-gray-400 capitalize mb-1">Total Rental</p>
-                                                <p className="font-semibold text-gray-800 text-sm">Rs. {item.price || 0} /-</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
 
-                        {/* Store Policies */}
-                        <div className="p-6 bg-white pt-8">
-                            <h3 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400 mb-6">Store Policies</h3>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                {[
-                                    { type: 'Custom Fitting', icon: <FaCheckCircle />, label: 'Custom Fitting' },
-                                    { type: 'Security Deposit', icon: <FaShieldAlt />, label: 'Security Deposit' },
-                                    { type: 'Return', icon: <FaTruck />, label: 'Return Policy' },
-                                    { type: 'Cancellation', icon: <FaClock />, label: 'Cancellation' }
-                                ].map((p) => (
-                                    <motion.button
-                                        key={p.type}
-                                        whileHover={{ scale: 1.02, backgroundColor: '#ffffff' }}
-                                        whileTap={{ scale: 0.98 }}
-                                        onClick={() => {
-                                            const policy = cartItems[0]?.policies?.find(pol => pol.type === p.type);
-                                            if (policy) setSelectedPolicy(policy);
-                                        }}
-                                        className="flex flex-col items-center justify-center gap-3 p-4 bg-white border border-gray-100 rounded-[1.2rem] shadow-sm hover:shadow-md transition-all text-center group"
-                                    >
-                                        <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center text-lg group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-                                            {p.icon}
-                                        </div>
-                                        <div>
-                                            <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest leading-tight">{p.label}</p>
-                                        </div>
-                                    </motion.button>
-                                ))}
-                            </div>
-                        </div>
                     </div>
 
                     {/* RIGHT COLUMN: Cost Summary */}

@@ -22,7 +22,13 @@ const Delivery = () => {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+        const storedUserJson = localStorage.getItem('user');
+        if (!storedUserJson) {
+            navigate("/login");
+            return;
+        }
+
+        const storedUser = JSON.parse(storedUserJson || '{}');
         const storedCart = JSON.parse(localStorage.getItem('cart') || '[]');
         const savedAddress = JSON.parse(localStorage.getItem('shippingAddress') || '{}');
         
@@ -38,7 +44,7 @@ const Delivery = () => {
             locality: savedAddress.locality || "",
             termsAccepted: savedAddress.termsAccepted || false
         });
-    }, []);
+    }, [navigate]);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;

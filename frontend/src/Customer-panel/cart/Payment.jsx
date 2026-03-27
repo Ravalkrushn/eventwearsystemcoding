@@ -86,6 +86,12 @@ const Payment = () => {
     const [clientSecret, setClientSecret] = useState("");
 
     useEffect(() => {
+        const user = localStorage.getItem("user");
+        if (!user) {
+            navigate("/login");
+            return;
+        }
+
         const fetchOrderAndSecret = async () => {
             const orderId = localStorage.getItem("currentOrderId");
             if (!orderId) {
@@ -115,9 +121,6 @@ const Payment = () => {
                 }
             } catch (error) {
                 console.error("Payment Init Error:", error);
-                // Placeholder if Stripe real key is missing
-                // Swal.fire("Warning", "Stripe keys are missing, using mock data for demo", "warning");
-                // For "test mode" requested by user, I'll ensure we have a fallback or clear error.
             } finally {
                 setLoading(false);
             }
